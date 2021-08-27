@@ -6,7 +6,6 @@
 
 template<typename T>
 bool is_diagonal_dom(const std::vector<std::vector<T>>& A){
-
 	auto n_rows = A.size();
 	auto n_col = A[0].size();
 	if (n_rows != n_col)
@@ -23,14 +22,12 @@ bool is_diagonal_dom(const std::vector<std::vector<T>>& A){
 		if (sum > diag)
 			return false;
 	}
-	
+
 	return true;
 }
 
-
 template<typename T>
 void GS_Solver(const std::vector<std::vector<T>>& A, std::vector<T>& B, std::vector<T>& X){
-
 	// Caso não seja diagonal dominante, a convergência não é garantida
 	if (!is_diagonal_dom(A))
 		return;

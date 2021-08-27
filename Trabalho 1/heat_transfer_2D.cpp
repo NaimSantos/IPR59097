@@ -7,8 +7,7 @@
 #include "utilities.h"
 
 void solver_finite_difference(std::vector<std::vector<double>>&){
-	auto pi_teste = 3.14;
-	pi_teste = std::sqrt(pi_teste);
+
 }
 
 void start_save_data(std::fstream& printer){
@@ -21,11 +20,16 @@ void save_data(const std::vector<std::vector<double>>&, std::fstream& filename){
 	std::cout << "Execução atingindo a funcao save data" << std::endl;
 }
 
-void fix_bounds(std::vector<std::vector<double>>& A, const double value){
+void set_bounds(std::vector<std::vector<double>>& A, double value){
 	auto m = A.size();
 	auto n = A[0].size();
 	A[0][0] = value;
 	A[m][0] = value;
 	A[0][n] = value;
 	A[m][n] = value;
+}
+
+void set_full_bound(std::vector<std::vector<double>>& A, double value, int line){
+	auto m = A.size();
+	std::fill(A.begin(), A.end(), value);
 }
