@@ -19,9 +19,10 @@ void start_save_data(std::fstream& printer){
 	printer << "x y T\n";
 }
 
-
 void save_data(const std::vector<std::vector<double>>&, std::fstream& filename){
 	std::cout << "Execução atingindo a funcao save data" << std::endl;
-	
+}
+
+void fix_bounds(std::vector<std::vector<double>>&, const double value){
 	
 }

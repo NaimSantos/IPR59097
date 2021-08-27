@@ -3,7 +3,6 @@
 #include <vector>
 #include <cmath>
 #include <iostream>
-//#include "gsiedel_vector.h"
 
 template<typename T>
 bool is_diagonal_dom(const std::vector<std::vector<T>>& A){
