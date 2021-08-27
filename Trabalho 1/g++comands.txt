@@ -1,0 +1,1 @@
+g++ -std=c++17 -o output.exe heat_transfer_2D.cpp main.cpp
