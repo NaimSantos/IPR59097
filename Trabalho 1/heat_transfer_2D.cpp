@@ -21,6 +21,11 @@ void save_data(const std::vector<std::vector<double>>&, std::fstream& filename){
 	std::cout << "Execução atingindo a funcao save data" << std::endl;
 }
 
-void fix_bounds(std::vector<std::vector<double>>&, const double value){
-	
+void fix_bounds(std::vector<std::vector<double>>& A, const double value){
+	auto m = A.size();
+	auto n = A[0].size();
+	A[0][0] = value;
+	A[m][0] = value;
+	A[0][n] = value;
+	A[m][n] = value;
 }
