@@ -1,8 +1,6 @@
 #include <iostream>
 #include <cmath>
 #include <string>
-#include <vector>
-#include <memory>    //std::unique_ptr
 #include <algorithm> //std::fill
 #include <fstream>   //std::fstream
 
