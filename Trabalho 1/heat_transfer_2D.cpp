@@ -6,30 +6,55 @@
 
 #include "utilities.h"
 
-void solver_finite_difference(std::vector<std::vector<double>>&){
+void solver_finite_difference(std::vector<std::vector<double>>& T, const double r, const double gamma){
+	//Calcula os valores dos nós:
+	const auto N = A[0].size();
+	const auto M = A.size();
+	for (int i = 1; i < N-1; i++){
+		for(int j = 1; j < M -1; j++){
+			T[i][j] = r*(T[i+1][j] + T[i-1][j] + T[i][j+1] + T[i][j-1] - 4*T[i][j]) + T[i1][j] + gamma;
+		}
+	}
+}
+
+void start_save_data(std::fstream& u_file, const std::vector<std::vector<double>>& T){
+	u_file << "Perfil de Temperatura\n";
+	u_file << "x y T\n";
+	const auto N = A[0].size();
+	const auto M = A.size();
+	for (int i = 0; i < N; i++){
+		for(int j = 0; j < M; j++){
+			//if (j == M-1)
+			//	u_file << T[i][j];
+			//else
+				u_file << T[i][j] << " ";
+		}
+		u_file << "\n\n";
+	}
 
 }
 
-void start_save_data(std::fstream& printer){
-	std::cout << "ECho" << std::endl;
-	printer << "Perfil de Temperatura\n";
-	printer << "x y T\n";
+void resume_save_data(std::fstream& u_file, const std::vector<std::vector<double>>&){
+	const auto N = A[0].size();
+	const auto M = A.size();
+	for (int i = 0; i < N; i++){
+		for(int j = 0; j < M; j++){
+				u_file << T[i][j] << " ";
+		}
+		u_file << "\n\n";
+	}
 }
 
-void save_data(const std::vector<std::vector<double>>&, std::fstream& filename){
-	std::cout << "Execução atingindo a funcao save data" << std::endl;
-}
-
-void set_bounds(std::vector<std::vector<double>>& A, double value){
+void fix_bounds_newman(std::vector<std::vector<double>>& A){
 	auto m = A.size();
 	auto n = A[0].size();
-	A[0][0] = value;
-	A[m][0] = value;
-	A[0][n] = value;
-	A[m][n] = value;
+	
 }
 
-void set_full_bound(std::vector<std::vector<double>>& A, double value, int line){
+void fix_bounds_dirichillet(std::vector<std::vector<double>>& A, const double valueX, const double valueY){
 	auto m = A.size();
-	std::fill(A.begin(), A.end(), value);
+	auto n = A[0].size();
+	std::fill(A[0].begin(), A[0].end(), valueX);
+	for (int i = 0; i < m; i++)
+		A[m-1][i] = valueY;
 }
