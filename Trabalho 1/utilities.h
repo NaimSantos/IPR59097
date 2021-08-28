@@ -29,9 +29,10 @@ bool is_diagonal_dom(const std::vector<std::vector<T>>& A){
 template<typename T>
 void GS_Solver(const std::vector<std::vector<T>>& A, std::vector<T>& B, std::vector<T>& X){
 	// Caso não seja diagonal dominante, a convergência não é garantida
+	/*
 	if (!is_diagonal_dom(A))
 		return;
-
+	*/
 	// Dimensões não são compatíveis:
 	if ((A.size() != A[0].size()) || A.size() != B.size())
 		return;
