@@ -10,15 +10,12 @@ set ztics border in scale 0,0 nomirror norotate  autojustify
 unset cbtics
 set rtics axis in scale 0,0 nomirror norotate  autojustify
 set title "Perfil de Temperatura na placa" 
-## set xrange [ -0.2500000 : 0.750000 ] noreverse nowriteback
-## set x2range [ * : * ] noreverse writeback
-## set yrange [ -0.2500000 : 0.750000 ] noreverse nowriteback
-## set y2range [ * : * ] noreverse writeback
+## set xrange [ -0.2500000 : 0.750000 ]
+## set yrange [ -0.2500000 : 0.750000 ]
+
 ## set zrange [ * : * ] noreverse writeback
 set cblabel "Escala de Temperatura" 
-## set cbrange [ 0.00000 : 5.00000 ] noreverse nowriteback
 ## set rrange [ * : * ] noreverse writeback
-## set palette rgbformulae -7, 2, -7
+set palette rgbformulae -21, -22, -23
 ## NO_ANIMATION = 1
-## Last datafile plotted: "$map1"
 splot 'Dados.dat' matrix with image

@@ -10,21 +10,21 @@
 // Variáveis do problema:
 constexpr double kappa {15.1};                          // coeficiente de difusividade térmica
 constexpr double rho {8050};                            // massa específica
-constexpr double cp {480};                            // calor específico
-constexpr double g {100000};                           // geração interna
+constexpr double cp {480};                              // calor específico
+constexpr double g {100000};                            // geração interna
 // Variáveis do domínio:
 constexpr double L {0.05};                              // tamanho em x
 constexpr double H {0.05};                              // tamanho em y
-constexpr int Nx {9};                                 // número de nós em x
-constexpr int Ny {9};                                 // número de nós em y
-constexpr auto dx = L/(Nx-1);                          // comprimento da célula
-constexpr auto dy = L/(Ny-1);                          // altura da célula
+constexpr int Nx {50};                                  // número de nós em x
+constexpr int Ny {50};                                  // número de nós em y
+constexpr auto dx = L/(Nx-1);                           // comprimento da célula
+constexpr auto dy = L/(Ny-1);                           // altura da célula
 // Variáveis da simulação:
-constexpr double T_init {25.0};                       // temperatura inicial da placa
-constexpr double ti {0.0};                             // tempo inicial da simulação
+constexpr double T_init {25.0};                         // temperatura inicial da placa
+constexpr double ti {0.0};                              // tempo inicial da simulação
 constexpr double tf {1000.0};                           // tempo final da simulação
-constexpr int nsteps {4096*4};                            // número de passos de tempo
-constexpr auto dt = (tf-ti)/nsteps;                    // tamanho do passo de tempo
+constexpr int nsteps {4096*4};                          // número de passos de tempo
+constexpr auto dt = (tf-ti)/nsteps;                     // tamanho do passo de tempo
 
 int main(int argc, char* argv[]){
 
@@ -49,7 +49,7 @@ int main(int argc, char* argv[]){
 	for (int step = 0; step < nsteps; step++){
 		solver_finite_difference(T, r, gamma);
 		fix_bounds(T, 100, 100);
-		if (step%100==0)
+		if (step%4096==0)
 			resume_save_data(save_2, T);
 	}
 
