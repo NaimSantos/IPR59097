@@ -20,35 +20,25 @@ void solver_finite_difference(std::vector<std::vector<double>>& T, const double 
 
 void start_save_data(std::fstream& u_file, const std::vector<std::vector<double>>& A){
 	u_file << "Perfil de Temperatura\n";
-	u_file << std::setw(4) << "x " << "y " << "T\n";
+	
 	const auto N = A[0].size();
 	const auto M = A.size();
 	for (int i = 0; i < N; i++){
 		for (int j = 0; j < M; j++){
-			if (j == M-1)
-				u_file << std::setprecision(3) << std::setw(8) << A[i][j];
-			else
-				u_file << std::setprecision(3) << std::setw(8) << A[i][j] << " ";
+			u_file << std::setprecision(3) << std::setw(8) << A[i][j] << " ";
 		}
 		u_file << "\n";
 	}
-	u_file << "\nFim do inicio\n";
 }
 
 void resume_save_data(std::fstream& u_file, const std::vector<std::vector<double>>& A){
 	static int count = 0;
 	const auto N = A[0].size();
 	const auto M = A.size();
-	//std::cout << "\ncount = " << count ;
 	u_file << "\n";
-	//u_file << "\ncount = " << count << ", N = " << N << ", M = " << M << std::endl;
-	for (int i = 0; i < N; i++){
+	for (int i = N-1; i >= 0; i--){
 		for (int j = 0; j < M; j++){
-			//std::cout << A[i][j] << " ";
-			if (j == M-1)
-				u_file << std::setw(8) << A[i][j] ;
-			else
-				u_file << std::setw(8) << A[i][j] << " ";
+			u_file << std::setw(8) << A[i][j] << " ";
 		}
 		u_file << "\n";
 	}

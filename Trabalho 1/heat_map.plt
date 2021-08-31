@@ -16,6 +16,6 @@ set title "Perfil de Temperatura na placa"
 ## set zrange [ * : * ] noreverse writeback
 set cblabel "Escala de Temperatura" 
 ## set rrange [ * : * ] noreverse writeback
-set palette rgbformulae -21, -22, -23
+set palette rgbformulae 33, 13, 10
 ## NO_ANIMATION = 1
 splot 'Dados.dat' matrix with image

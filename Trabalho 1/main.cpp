@@ -33,8 +33,10 @@ int main(int argc, char* argv[]){
 	constexpr auto alfa = kappa/(rho*cp);
 	constexpr auto r = kappa*dt/(rho*cp*dx*dx);
 	constexpr auto stab = (dx*dx) / (4*alfa);
-	std::cout << "stability = " << stab << "\ndt = "<< dt << ", dx = " << dx << ", r = " << r << ", gamma = " << gamma << ", alfa = " << alfa << std::endl;
-
+	dt < stab ? std::cout << "Estabilidade satisfeista" << std::endl : std::cout << "Estabilidade violada" << std::endl;
+	std::cout << "dt\t\tstability" << std::endl; 
+	std::cout << dt << "\t" << stab << std::endl; 
+	std::cout << "\ndx = " << dx << "\nr = " << r << "\ngamma = " << gamma << "\nalfa = " << alfa << std::endl;
 
 	// Malha:
 	std::vector<std::vector<double>> T(Ny, std::vector<double>(Nx, T_init));
@@ -45,7 +47,7 @@ int main(int argc, char* argv[]){
 
 	// Inicio da execução:
 	start_save_data(save_1, T);
-
+	save_1.close(); //Fclose
 	for (int step = 0; step < nsteps; step++){
 		solver_finite_difference(T, r, gamma);
 		fix_bounds(T, 100, 100);
