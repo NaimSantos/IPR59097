@@ -22,7 +22,6 @@ bool is_diagonal_dom(const std::vector<std::vector<T>>& A){
 		if (sum > diag)
 			return false;
 	}
-
 	return true;
 }
 
@@ -63,7 +62,6 @@ void GS_Solver(const std::vector<std::vector<T>>& A, std::vector<T>& B, std::vec
 		}
 		counter++;
 	}
-
 }
 
 template <typename T>
