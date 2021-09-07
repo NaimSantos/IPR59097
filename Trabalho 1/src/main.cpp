@@ -21,7 +21,7 @@ constexpr double T_0 {320.0};                         // temperatura da aleta em
 constexpr double T_n {75.0};                          // temperatura da aleta em x=L
 constexpr double L {0.25};                            // comprimento da aleta
 constexpr int N {10};                                 // número de nós em x  
-
+constexpr int nsteps {100};                          // número de passos de tempo
 
 int main(int argc, char* argv[]){
 
@@ -39,22 +39,28 @@ int main(int argc, char* argv[]){
 
 	fill_coef(G, gamma);
 	fill_b(B, gamma);
-	GS_Solver(G, B, X);
+	for (int i = 0; i < nsteps; i++){
+		GS_Solver<double>(G, B, X);
+	}
 	save_data(X, Pos);
 
 	std::cout << "\nExecution reached the end" << std::endl;
 }
+
 void fill_coef(std::vector<std::vector<double>>& A, const double gamma){
+
 	int m = A.size();
 	int n = A[0].size();
-	// Corrige da primeira até a penúltima linha
-	for (int i = 1; i < m-1; i++){
+
+	// Corrige da segunda até a penúltima linha
+	for (int i = 1; i < (m-1); i++){
 		A[i][i-1] = 1.0;
-		A[i][i]   = - (2 + gamma);
+		A[i][i] = - (2 + gamma);
 		A[i][i+1] = 1.0;
 	}
 	A[0][0] = 1.0;
-	A[m][n] = 1.0;
+	A[m-1][n-1] = 1.0;
+
 }
 void fill_b(std::vector<double>& A, const double gamma){
 	auto m = A.size();
@@ -74,6 +80,6 @@ void save_data(const std::vector<double>& V, const std::vector<double>& W){
 
 	const auto N = V.size();
 	for (int i = 0; i < N; i++){
-		saver << std::setprecision(2) << std::setw(8) << V[i] << "\t" << W[i] << "\n";
+		saver << std::setw(8) << W[i] << "\t" << V[i] << "\n";
 	}
 }

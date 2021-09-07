@@ -49,7 +49,6 @@ void GS_Solver(const std::vector<std::vector<T>>& A, std::vector<T>& B, std::vec
 	int m = A.size();
 	int n = A[0].size();
 	while(!teste && counter<40){
-		std::cout << "Iter = " << counter << std::endl;
 		teste = true;
 		for (int i = 0; i < m; i++){
 			Y[i] = (B[i] / A[i][i]);
