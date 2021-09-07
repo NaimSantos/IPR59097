@@ -5,6 +5,8 @@
 #include <iostream>
 #include <chrono>
 
+constexpr auto NPI = 4 * std::atan(1);
+
 template<typename T>
 bool is_diagonal_dom(const std::vector<std::vector<T>>& A){
 	auto n_rows = A.size();

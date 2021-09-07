@@ -3,119 +3,77 @@
 #include <cmath>
 #include <string>
 #include <vector>
-#include <algorithm> //std::fill
-#include <fstream>   //std::fstream
+#include <fstream>
 
 #include "utilities.h"
 
 // Protótipos de funções:
-void solver_finite_difference(std::vector<std::vector<double>>& T, const double r, const double gamma);
-void start_save_data(std::fstream& u_file, const std::vector<std::vector<double>>& T);
-void resume_save_data(std::fstream& u_file, const std::vector<std::vector<double>>& A);
-void fix_bounds(std::vector<std::vector<double>>& A, const double valueX, const double valueY);
+void fill_coef(std::vector<std::vector<double>>& A, const double gamma);
+void fill_b(std::vector<double>& A, const double gamma);
+void save_data(const std::vector<double>& V, const std::vector<double>& W);
 
 // Variáveis do problema:
-constexpr double kappa {15.1};                          // coeficiente de difusividade térmica
-constexpr double rho {8050};                            // massa específica
-constexpr double cp {480};                              // calor específico
-constexpr double g {100000};                            // geração interna
-// Variáveis do domínio:
-constexpr double L {0.05};                              // tamanho em x
-constexpr double H {0.05};                              // tamanho em y
-constexpr int Nx {50};                                  // número de nós em x
-constexpr int Ny {50};                                  // número de nós em y
-constexpr auto dx = L/(Nx-1);                           // comprimento da célula
-constexpr auto dy = L/(Ny-1);                           // altura da célula
-// Variáveis da simulação:
-constexpr double T_init {25.0};                         // temperatura inicial da placa
-constexpr double ti {0.0};                              // tempo inicial da simulação
-constexpr double tf {1000.0};                           // tempo final da simulação
-constexpr int nsteps {4096*4};                          // número de passos de tempo
-constexpr auto dt = (tf-ti)/nsteps;                     // tamanho do passo de tempo
+constexpr double kappa {59.0};                        // coeficiente de condutividade térmica
+constexpr double h {380};                             // coeficiente de troca de calor por convecção
+constexpr double D {4e-03};                           // diâmetro da seção trasnversal da aleta
+constexpr double T_amb{20.0};                         // temperatura do ambiente
+constexpr double T_0 {320.0};                         // temperatura da aleta em x=0
+constexpr double T_n {75.0};                          // temperatura da aleta em x=L
+constexpr double L {0.25};                            // comprimento da aleta
+constexpr int N {10};                                 // número de nós em x  
+
 
 int main(int argc, char* argv[]){
-	std::cout << "2D NON-STEADY HEAT EQUATION SOLVER" << std::endl;
 
-	// Variáveis auxiliares do problema:
-	constexpr auto gamma = g*dt/(rho*cp);
-	constexpr auto alfa = kappa/(rho*cp);
-	constexpr auto r = kappa*dt/(rho*cp*dx*dx);
-	constexpr auto stab = (dx*dx) / (4*alfa);
-	dt < stab ? std::cout << "Estabilidade satisfeista" << std::endl : std::cout << "Estabilidade violada" << std::endl;
-	std::cout << "dt\t\tstability" << std::endl; 
-	std::cout << dt << "\t" << stab << std::endl; 
-	std::cout << "\ndx = " << dx << "\nr = " << r << "\ngamma = " << gamma << "\nalfa = " << alfa << std::endl;
+	constexpr auto A = NPI*D*D/4;                                            // área da seção transversal da aleta
+	constexpr auto P = NPI*D;                                                // perímetro da aleta
+	constexpr auto m2 = (h*P)/(kappa*A);
+	constexpr auto dx = L/(N-1);                                             // comprimento do intervalo em x
+	constexpr auto gamma = dx*m2;
 
-	// Malha:
-	std::vector<std::vector<double>> T(Ny, std::vector<double>(Nx, T_init));
-	fix_bounds(T, 100, 100);
-	// Arquivo de saida:
-	std::fstream save_1 {"2D_Heat.dat", std::ios::out|std::ios::trunc};
-	std::fstream save_2 {"2D_Heat.dat", std::ios::out|std::ios::app};
+	std::vector<std::vector<double>> G(N, std::vector<double>(N, 0.0));      // matriz de coeficientes NxN, inicializada em 0.0
+	std::vector<double> X(N, 0.0);                                           // vetor onde serão armazenadas as temperaturas
+	std::vector<double> B(N, 0.0);                                           // vetor b no sistema Ax=b
+	std::vector<double> Pos(N, 0.0);                                         // vetor com as posições avaliadas
+	linspace(Pos, N, L, 0.0);
 
-	// Inicio da execução:
-	start_save_data(save_1, T);
-	save_1.close(); //Fclose
-	for (int step = 0; step < nsteps; step++){
-		solver_finite_difference(T, r, gamma);
-		fix_bounds(T, 100, 100);
-		if (step%4096==0)
-			resume_save_data(save_2, T);
-	}
+	fill_coef(G, gamma);
+	fill_b(B, gamma);
+	GS_Solver(G, B, X);
+	save_data(X, Pos);
 
 	std::cout << "\nExecution reached the end" << std::endl;
 }
-
-void solver_finite_difference(std::vector<std::vector<double>>& T, const double r, const double gamma){
-	//Calcula os valores dos nós:
-	const auto N = T[0].size();
-	const auto M = T.size();
-	for (int i = 1; i < N-1; i++){
-		for (int j = 1; j < M-1; j++){
-			T[i][j] = r*(T[i+1][j] + T[i-1][j] + T[i][j+1] + T[i][j-1] - 4*T[i][j]) + T[i][j] + gamma;
-		}
+void fill_coef(std::vector<std::vector<double>>& A, const double gamma){
+	int m = A.size();
+	int n = A[0].size();
+	// Corrige da primeira até a penúltima linha
+	for (int i = 1; i < m-1; i++){
+		A[i][i-1] = 1.0;
+		A[i][i]   = - (2 + gamma);
+		A[i][i+1] = 1.0;
 	}
+	A[0][0] = 1.0;
+	A[m][n] = 1.0;
 }
-
-void start_save_data(std::fstream& u_file, const std::vector<std::vector<double>>& A){
-	u_file << "Perfil de Temperatura\n";
-
-	const auto N = A[0].size();
-	const auto M = A.size();
-	for (int i = 0; i < N; i++){
-		for (int j = 0; j < M; j++){
-			u_file << std::setprecision(3) << std::setw(8) << A[i][j] << " ";
-		}
-		u_file << "\n";
-	}
-}
-
-void resume_save_data(std::fstream& u_file, const std::vector<std::vector<double>>& A){
-	u_file << "\n";
-
-	const auto N = A[0].size();
-	const auto M = A.size();
-	for (int i = N-1; i >= 0; i--){
-		for (int j = 0; j < M; j++){
-			u_file << std::setw(8) << A[i][j] << " ";
-		}
-		u_file << "\n";
-	}
-}
-
-void fix_bounds(std::vector<std::vector<double>>& A, const double valueX, const double valueY){
+void fill_b(std::vector<double>& A, const double gamma){
 	auto m = A.size();
-	auto n = A[0].size();
+	for (auto& x : A){
+		x = -gamma * T_amb;
+	}
+	A[0] = T_0;
+	A[m-1] = T_n;
+}
 
-	// Aresta superior:
-	std::fill(A[0].begin(), A[0].end(), valueX);
+void save_data(const std::vector<double>& V, const std::vector<double>& W){
+	// Arquivo de saida:
+	std::fstream saver {"temperature_out.txt", std::ios::out|std::ios::trunc};
+	
+	saver << "Perfil de Temperatura\n";
+	saver << "Posicao(m)\tTemperatura\n";
 
-	for (int k = 0; k < m; k++){
-		// Aresta direita
-		A[k][0] = A[k][1];
-		// Aresta esquerda:
-		A[k][n-1] = valueY;
-		// Aresta inferior:
-		A[m-1][k] = A[m-2][k];
+	const auto N = V.size();
+	for (int i = 0; i < N; i++){
+		saver << std::setprecision(2) << std::setw(8) << V[i] << "\t" << W[i] << "\n";
 	}
 }
