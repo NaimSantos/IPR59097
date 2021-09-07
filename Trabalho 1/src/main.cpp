@@ -1,7 +1,6 @@
 #include <iostream>
 #include <iomanip>
 #include <cmath>
-#include <string>
 #include <vector>
 #include <fstream>
 
@@ -20,8 +19,8 @@ constexpr double T_amb{20.0};                         // temperatura do ambiente
 constexpr double T_0 {320.0};                         // temperatura da aleta em x=0
 constexpr double T_n {75.0};                          // temperatura da aleta em x=L
 constexpr double L {0.25};                            // comprimento da aleta
-constexpr int N {10};                                 // número de nós em x  
-constexpr int nsteps {100};                          // número de passos de tempo
+constexpr int N {10};                                 // número de nós em x
+//constexpr int nsteps {100};
 
 int main(int argc, char* argv[]){
 
@@ -39,9 +38,7 @@ int main(int argc, char* argv[]){
 
 	fill_coef(G, gamma);
 	fill_b(B, gamma);
-	for (int i = 0; i < nsteps; i++){
-		GS_Solver<double>(G, B, X);
-	}
+	GS_Solver<double>(G, B, X);
 	save_data(X, Pos);
 
 	std::cout << "\nExecution reached the end" << std::endl;
@@ -74,7 +71,6 @@ void fill_b(std::vector<double>& A, const double gamma){
 void save_data(const std::vector<double>& V, const std::vector<double>& W){
 	// Arquivo de saida:
 	std::fstream saver {"temperature_out.txt", std::ios::out|std::ios::trunc};
-	
 	saver << "Perfil de Temperatura\n";
 	saver << "Posicao(m)\tTemperatura\n";
 
