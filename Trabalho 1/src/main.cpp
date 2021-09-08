@@ -19,7 +19,7 @@ constexpr double T_amb{20.0};                         // temperatura do ambiente
 constexpr double T_0 {320.0};                         // temperatura da aleta em x=0
 constexpr double T_n {75.0};                          // temperatura da aleta em x=L
 constexpr double L {0.25};                            // comprimento da aleta
-constexpr int N {10};                                 // número de nós em x
+constexpr int N {100};                                 // número de nós em x
 //constexpr int nsteps {100};
 
 int main(int argc, char* argv[]){
@@ -28,7 +28,7 @@ int main(int argc, char* argv[]){
 	constexpr auto P = NPI*D;                                                // perímetro da aleta
 	constexpr auto m2 = (h*P)/(kappa*A);
 	constexpr auto dx = L/(N-1);                                             // comprimento do intervalo em x
-	constexpr auto gamma = dx*m2;
+	constexpr auto gamma = dx*dx*m2;
 
 	std::vector<std::vector<double>> G(N, std::vector<double>(N, 0.0));      // matriz de coeficientes NxN, inicializada em 0.0
 	std::vector<double> X(N, 0.0);                                           // vetor onde serão armazenadas as temperaturas
@@ -38,6 +38,10 @@ int main(int argc, char* argv[]){
 
 	fill_coef(G, gamma);
 	fill_b(B, gamma);
+
+	//print_array_1D(B);
+	//print_array_2D(G);
+
 	GS_Solver<double>(G, B, X);
 	save_data(X, Pos);
 
