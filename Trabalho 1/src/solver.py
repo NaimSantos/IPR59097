@@ -9,7 +9,7 @@ T_amb = 20.0                        # temperatura do ambiente
 T_0 = 320.0                         # temperatura da aleta em x=0
 T_n = 75.0                          # temperatura da aleta em x=L
 L = 0.25                            # comprimento da aleta
-N = 100                             # número de nós em x
+N = 30                             # número de nós em x
 dx = L/(N-1)                        # comprimento do intervalo em x
 area = math.pi*D*D/4                # área da seção transversal da aleta
 peri = math.pi*D                    # perímetro da aleta
@@ -45,8 +45,9 @@ B[N-1] = T_n
 
 # Armazena em X a solução do sistema
 X = np.linalg.solve(A, B)
-
+print(X)
 Pos = np.linspace(0.0, L, N)        # Vetor das posições linearmente espaçado
+
 
 plt.plot(Pos, X, 'r')
 plt.title("Perfil de temperatura da placa unidimensional (t=500 s)")
