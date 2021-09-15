@@ -18,7 +18,7 @@ gamma = dx*dx*m2
 m = math.sqrt(m2)
 
 # Matrizes para armazenamento dos resultados
-A = np.zeros((N, N))                # Array para os coeficientes, com N elementos por linha em nsteps linhas
+A = np.zeros((N, N))                # Array para os coeficientes, com NxN elementos
 B = np.zeros(N)                     # Vetor dos termos independentes
 X = np.zeros(N)                     # Vetor para armazenar as temperaturas
 
@@ -31,6 +31,8 @@ while i < (N-1) :
     A[i][i+1] = 1.0
     i = i + 1
 A[N-1][N-1] = 1.0
+#print(A)
+
 
 # Corrige os termos independentes:
 B[0] = T_0
@@ -39,14 +41,12 @@ while j < N-1 :
     B[j] = -gamma * T_amb
     j = j + 1
 B[N-1] = T_n
-
-#print(A)
 #print(B)
 
+# Armazena em X a solução do sistema
 X = np.linalg.solve(A, B)
 
 Pos = np.linspace(0.0, L, N)        # Vetor das posições linearmente espaçado
-
 
 plt.plot(Pos, X, 'r')
 plt.title("Perfil de temperatura da placa unidimensional (t=500 s)")
