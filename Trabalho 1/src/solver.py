@@ -7,9 +7,9 @@ h = 380                             # coeficiente de troca de calor por convecç
 D = 4e-03                           # diâmetro da seção transversal da aleta
 T_amb = 20.0                        # temperatura do ambiente
 T_0 = 320.0                         # temperatura da aleta em x=0
-T_n = 75.0                          # temperatura da aleta em x=L
+T_n = 25.0                          # temperatura da aleta em x=L
 L = 0.25                            # comprimento da aleta
-N = 30                             # número de nós em x
+N = 30                              # número de nós em x
 dx = L/(N-1)                        # comprimento do intervalo em x
 area = math.pi*D*D/4                # área da seção transversal da aleta
 peri = math.pi*D                    # perímetro da aleta
