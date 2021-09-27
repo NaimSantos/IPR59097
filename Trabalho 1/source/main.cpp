@@ -14,13 +14,13 @@ void save_analitic(const std::vector<double>& V1, const std::vector<double>& V2,
 double kelvin_to_celsius(const double TK);
 // Variáveis do problema:
 constexpr double kappa {59.0};                                           // coeficiente de condutividade térmica
-constexpr double h {380};                                                // coeficiente de troca de calor por convecção
+constexpr double h {600};                                                // coeficiente de troca de calor por convecção
 constexpr double D {4e-03};                                              // diâmetro da seção transversal da aleta
 constexpr double T_amb{20.0};                                            // temperatura do ambiente
 constexpr double T_0 {320};                                              // temperatura da aleta em x=0
 constexpr double T_n {75};                                               // temperatura da aleta em x=L
 constexpr double L {0.25};                                               // comprimento da aleta
-constexpr int N {50};                                                    // número de nós em x
+constexpr int N {51};                                                    // número de nós em x
 
 int main(int argc, char* argv[]){
 	constexpr auto dx = L/(N-1);                                         // comprimento do intervalo em x
