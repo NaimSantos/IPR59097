@@ -7,8 +7,8 @@
 
 #include "utilities.h"
 
-// Protótipos de funções:
 void fill_coef(std::vector<std::vector<double>>& A, const double gamma);
+void fill_indepen(std::vector<double>& B, const double gamma);
 void save_data(const std::vector<double>& V, const std::vector<double>& W, std::string& filename);
 void save_analitic(const std::vector<double>& V1, const std::vector<double>& V2, std::string& filename);
 double kelvin_to_celsius(const double TK);
@@ -41,17 +41,14 @@ int main(int argc, char* argv[]){
 	std::vector<double> D(N, 0.0);                                       // vetor para analítico
 	linspace(Pos, N, L, 0.0);
 
-	// Corrigir os coeficientes:
+	// Corrigir os coeficientes e os termos independentes:
 	fill_coef(G, gamma);
-	// Corrigir os termos independentes:
-	B[0] = T_0;
-	for (int i = 1; i < N-1; i++)
-		B[i] = -gamma * T_amb;
-	B[N-1] = T_n;
+	fill_indepen(B, gamma);
+
 	// Solução do sistema via Gauss-Siedel:
 	GS_Solver<double>(G, B, T);
 
-	std::string numeric_data {"analitic_data"};
+	std::string numeric_data {"numeric_data"};
 	numeric_data += "_k_" + std::to_string(static_cast<int>(kappa)) + "_h_" + std::to_string(static_cast<int>(h)) + ".txt";
 	save_data(T, Pos, numeric_data);
 
@@ -70,25 +67,40 @@ int main(int argc, char* argv[]){
 }
 
 void fill_coef(std::vector<std::vector<double>>& A, const double gamma){
-	int m = A.size();
-	int n = A[0].size();
+	int p = A.size();
+	int q = A[0].size();
+	if (p!=q || p!= N)
+		return;
 
 	A[0][0] = 1.0;
-	for (int i = 1; i < (m-1); i++){
+	for (int i = 1; i < (p-1); i++){
 		A[i][i-1] = 1.0;
 		A[i][i] = - (2 + gamma);
 		A[i][i+1] = 1.0;
 	}
-	A[m-1][n-1] = 1.0;
+	A[p-1][q-1] = 1.0;
+}
+void fill_indepen(std::vector<double>& B, const double gamma){
+	auto q = B.size();
+	if (q != N)
+		return;
 
+	B[0] = T_0;
+	for (int i = 1; i < q-1; i++)
+		B[i] = -gamma * T_amb;
+	B[q-1] = T_n;
 }
 void save_data(const std::vector<double>& V, const std::vector<double>& W, std::string& filename){
 	std::fstream saver {filename, std::ios::out|std::ios::trunc};
 	saver << "Perfil de Temperatura\n";
 	saver << "Posicao(m)\tTemperatura\n";
 
-	const auto N = V.size();
-	for (int i = 0; i < N; i++){
+	const auto nelem = V.size();
+	const auto nelem2 = W.size();
+	if (nelem != nelem2)
+		return;
+
+	for (int i = 0; i < nelem; i++){
 		saver << std::setw(8) << W[i] << "\t" << V[i] << "\n";
 	}
 }
@@ -96,7 +108,13 @@ void save_analitic(const std::vector<double>& V1, const std::vector<double>& V2,
 	std::fstream saver {filename, std::ios::out|std::ios::trunc};
 	saver << "Solucao analitica\n";
 	saver << "Posicao(m)\tTemperatura\n";
-	for (int i = 0; i < N; i++){
+
+	const auto nelem = V1.size();
+	const auto nelem2 = V2.size();
+	if (nelem != nelem2)
+		return;
+
+	for (int i = 0; i < nelem; i++){
 		saver << std::setw(8) << V1[i] << "\t" << V2[i] << "\n";
 	}
 }
