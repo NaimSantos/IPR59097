@@ -3,12 +3,14 @@
 #include <cmath>
 #include <vector>
 #include <fstream>
+#include <string>
 
 #include "utilities.h"
 
 // Protótipos de funções:
 void fill_coef(std::vector<std::vector<double>>& A, const double gamma);
-void save_data(const std::vector<double>& V, const std::vector<double>& W);
+void save_data(const std::vector<double>& V, const std::vector<double>& W, std::string& filename);
+void save_analitic(const std::vector<double>& V1, const std::vector<double>& V2, std::string& filename);
 double kelvin_to_celsius(const double TK);
 // Variáveis do problema:
 constexpr double kappa {59.0};                                           // coeficiente de condutividade térmica
@@ -36,7 +38,7 @@ int main(int argc, char* argv[]){
 	std::vector<double> T(N, 0.0);                                       // vetor onde serão armazenadas as temperaturas
 	std::vector<double> B(N, 0.0);                                       // vetor b no sistema Ax=b
 	std::vector<double> Pos(N, 0.0);                                     // vetor com as posições avaliadas
-	std::vector<double> U(N, 0.0);                                       // vetor para analítico
+	std::vector<double> D(N, 0.0);                                       // vetor para analítico
 	linspace(Pos, N, L, 0.0);
 
 	// Corrigir os coeficientes:
@@ -46,15 +48,23 @@ int main(int argc, char* argv[]){
 	for (int i = 1; i < N-1; i++)
 		B[i] = -gamma * T_amb;
 	B[N-1] = T_n;
-
+	// Solução do sistema via Gauss-Siedel:
 	GS_Solver<double>(G, B, T);
 
-	// Para comparar com a solução analítica:
-	for (int i = 0; i < N-1; i++){
-		U[i] = T_amb + (T_0-T_amb) * (((T_n-T_amb)/(T_0-T_amb))*(std::sinh(m*Pos[i])) + std::sinh(m*(L - Pos[i]))) / (std::sinh(m*L));
-	}
+	std::string numeric_data {"analitic_data"};
+	numeric_data += "_k_" + std::to_string(static_cast<int>(kappa)) + "_h_" + std::to_string(static_cast<int>(h)) + ".txt";
+	save_data(T, Pos, numeric_data);
 
-	save_data(T, Pos);
+
+
+	// Solução analítica, para comparação posterior:
+	for (int i = 0; i < N-1; i++){
+		D[i] = T_amb + (T_0-T_amb) * (((T_n-T_amb)/(T_0-T_amb))*(std::sinh(m*Pos[i])) + std::sinh(m*(L - Pos[i]))) / (std::sinh(m*L));
+	}
+	std::string analitic_data {"data_analitic"};
+	analitic_data += "_k_" + std::to_string(static_cast<int>(kappa)) + "_h_" + std::to_string(static_cast<int>(h)) + ".txt";
+	save_analitic(Pos, D, analitic_data);
+
 
 	std::cout << "Execution reached the end" << std::endl;
 }
@@ -72,8 +82,8 @@ void fill_coef(std::vector<std::vector<double>>& A, const double gamma){
 	A[m-1][n-1] = 1.0;
 
 }
-void save_data(const std::vector<double>& V, const std::vector<double>& W){
-	std::fstream saver {"dataN51.txt", std::ios::out|std::ios::trunc};
+void save_data(const std::vector<double>& V, const std::vector<double>& W, std::string& filename){
+	std::fstream saver {filename, std::ios::out|std::ios::trunc};
 	saver << "Perfil de Temperatura\n";
 	saver << "Posicao(m)\tTemperatura\n";
 
@@ -82,7 +92,14 @@ void save_data(const std::vector<double>& V, const std::vector<double>& W){
 		saver << std::setw(8) << W[i] << "\t" << V[i] << "\n";
 	}
 }
-
+void save_analitic(const std::vector<double>& V1, const std::vector<double>& V2, std::string& filename){
+	std::fstream saver {filename, std::ios::out|std::ios::trunc};
+	saver << "Solucao analitica\n";
+	saver << "Posicao(m)\tTemperatura\n";
+	for (int i = 0; i < N; i++){
+		saver << std::setw(8) << V1[i] << "\t" << V2[i] << "\n";
+	}
+}
 double kelvin_to_celsius(const double TK){
 	return TK - 273.15;
 }
