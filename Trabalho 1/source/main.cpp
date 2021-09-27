@@ -48,14 +48,12 @@ int main(int argc, char* argv[]){
 	// Solução do sistema via Gauss-Siedel:
 	GS_Solver<double>(G, B, T);
 
-	std::string numeric_data {"numeric_data"};
+	std::string numeric_data {"data_numeric"};
 	numeric_data += "_k_" + std::to_string(static_cast<int>(kappa)) + "_h_" + std::to_string(static_cast<int>(h)) + ".txt";
 	save_data(T, Pos, numeric_data);
 
-
-
 	// Solução analítica, para comparação posterior:
-	for (int i = 0; i < N-1; i++){
+	for (int i = 0; i < N; i++){
 		D[i] = T_amb + (T_0-T_amb) * (((T_n-T_amb)/(T_0-T_amb))*(std::sinh(m*Pos[i])) + std::sinh(m*(L - Pos[i]))) / (std::sinh(m*L));
 	}
 	std::string analitic_data {"data_analitic"};
@@ -81,7 +79,7 @@ void fill_coef(std::vector<std::vector<double>>& A, const double gamma){
 	A[p-1][q-1] = 1.0;
 }
 void fill_indepen(std::vector<double>& B, const double gamma){
-	auto q = B.size();
+	int q = B.size();
 	if (q != N)
 		return;
 
@@ -95,8 +93,8 @@ void save_data(const std::vector<double>& V, const std::vector<double>& W, std::
 	saver << "Perfil de Temperatura\n";
 	saver << "Posicao(m)\tTemperatura\n";
 
-	const auto nelem = V.size();
-	const auto nelem2 = W.size();
+	int nelem = V.size();
+	int nelem2 = W.size();
 	if (nelem != nelem2)
 		return;
 
@@ -109,8 +107,8 @@ void save_analitic(const std::vector<double>& V1, const std::vector<double>& V2,
 	saver << "Solucao analitica\n";
 	saver << "Posicao(m)\tTemperatura\n";
 
-	const auto nelem = V1.size();
-	const auto nelem2 = V2.size();
+	int nelem = V1.size();
+	int nelem2 = V2.size();
 	if (nelem != nelem2)
 		return;
 
