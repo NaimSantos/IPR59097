@@ -13,18 +13,18 @@ template <typename T>
 void print_array_2D(const std::vector<std::vector<T>> M);
 
 constexpr double kappa {0.6};                            // coeficiente de condutividade térmica
-constexpr double h {50.0};                               // coeficiente de troca de calor por convecção
+constexpr double h {15.0};                               // coeficiente de troca de calor por convecção
 constexpr double cp {1200.0};                            // calor específico
 constexpr double rho {600.0};                            // massa específica
-constexpr double g {1000000.0};                           // geração interna
+constexpr double g {100000.0};                           // geração interna
 constexpr double T_inf{20.0};                            // temperatura do ambiente
-constexpr double T_0 {20};                               // temperatura inicial da placa
+constexpr double T_0 {20.0};                             // temperatura inicial da placa
 constexpr double L {0.03};                               // comprimento da placa
 constexpr int N {11};                                    // número de nós em x
 constexpr double ti {0.0};                               // tempo inicial
-constexpr double tf {100.0};                             // tempo total de simulação
-constexpr double dt {0.1};                               // passo de tempo
-constexpr auto dx = L /(N - 1);                          // intervalo
+constexpr double tf {1.0};                               // tempo total de simulação
+constexpr auto dx = L/(N-1);                             // intervalo
+constexpr double dt = dx/10;                             // passo de tempo
 constexpr auto nsteps = static_cast<int>((tf - ti)/dt);  // número de passos de tempo
 
 int main(int argc, char* argv[]){
@@ -32,13 +32,15 @@ int main(int argc, char* argv[]){
 	constexpr auto r = (alpha * dt)/(dx*dx);
 	constexpr auto gamma = (alpha * g * dt) / kappa;
 	constexpr auto mu = (2 * dx * h) / kappa;
-
-	std::cout << "dx = " << dx << std::endl;
-	std::cout << "dt = " << dt << std::endl;
 	std::cout << "alpha = " << alpha << std::endl;
 	std::cout << "r = " << r << std::endl;
 	std::cout << "gamma = " << gamma << std::endl;
 	std::cout << "mi = " << mu << std::endl;
+	
+	std::cout << "\ndx = " << dx << std::endl;
+	std::cout << "dt = " << dt << std::endl;
+	std::cout << "Calculating " << nsteps << " steps..." << std::endl;
+
 
 	std::vector<std::vector<double>> T(nsteps, std::vector<double>(N, T_0)); 
 	std::vector<double> Pos(N, 0.0);
@@ -46,13 +48,13 @@ int main(int argc, char* argv[]){
 
 	//print_array_2D(T);
 
-	for (int i = 1; i < nsteps; i++){
+	for (int i = 1; i < 2; i++){
 		// contorno esquerdo:
 		T[i][0] = -r*T[i][0] + 2*r*T[i][1] + gamma;
 		
 		// nós internos:
 		for (int j = 1; j < N-1; j++){
-			T[i][j] = r*T[i][j-1] - r*T[i][j] + r*T[i][j+1] + gamma;
+			T[i][j] = T[i][j] + r*(T[i][j-1] - 2*T[i][j] + T[i][j+1]) + gamma;
 			//std::cout << "i = " << i << " j = " << j << "\tT = " << T[i][j] << std::endl;
 		}
 		// contorno direito:
