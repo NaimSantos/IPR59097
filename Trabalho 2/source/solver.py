@@ -21,7 +21,7 @@ eta = 3.0 + ((2*h*dx)/kappa)
 mu = (g*dt)/(rho*cp)
 
 print("r implicito: ", r1)
-def plot_perfil(x, y):
+def plot_perfil_single(x, y):
     plt.plot(x, y, 'r', linestyle='dashed', linewidth=2)
     plt.xlabel("Comprimento (m)", fontsize = 11)
     plt.ylabel("Temperatura (° C)", fontsize = 11)
@@ -29,7 +29,8 @@ def plot_perfil(x, y):
     plt.grid(True, 'major', 'both')
     plt.savefig('Grafico_Perfil.png')
     plt.show()
-def plot_perfil3(x, y1, y2, y3):
+
+def plot_perfil_tri(x, y1, y2, y3):
     plt.plot(x, y1, 'c', label= 't = 1 s',  linewidth=2,)
     plt.plot(x, y2, 'b', label= 't = 1000 s', linewidth=2, )
     plt.plot(x, y3, 'r', label= 't = 120000 s', linewidth=2,)
@@ -39,6 +40,7 @@ def plot_perfil3(x, y1, y2, y3):
     plt.grid(True, 'major', 'both')
     plt.savefig('Grafico_Perfil_3_Tempos.png')
     plt.show()
+
 def plot_evolution(x, y1, y2, y3):
     plt.plot(x, y1, 'r', label= 'x = 0.25L', linewidth=2)
     plt.plot(x, y2, 'b', label= 'x = 0.5L', linewidth=2)
@@ -50,22 +52,25 @@ def plot_evolution(x, y1, y2, y3):
     plt.savefig('Graf_Evolucao_Temporal.png')
     plt.show()
 
-T1 = np.zeros((nsteps, N)) 
-X = np.linspace(0.0, L, N)
-tempos = np.linspace(ti, tf, nsteps)
+T1 = np.zeros((nsteps, N))           # para armazenar os resultados em todos os tempos
+X = np.linspace(0.0, L, N)           # posições, para plotar
+tempos = np.linspace(ti, tf, nsteps) # tempos, para plotar
 def implictsolver(A, B, T):
     T[0] = B.reshape(1, N)
     t = 1
     while t < nsteps:
+        # Correção de B:
         B[0][0] = 0.0
         B[N-1][0] = (2*h*dx*T0)/kappa
         i = 1
         while i < N-1 :
             B[i][0] = B[i][0] + mu
             i = i + 1
+        # Atualiza B com as novas temperaturas:
         B = np.linalg.solve(A, B)
         T[t] = B.reshape(1, N)
         t = t + 1
+
 def solveimplicitly(r, T):
     # Preenchimento da matriz de termos independentes:
     B = np.full((N, 1), T0)
@@ -103,5 +108,5 @@ i1 = (int)(1/dt)
 i120 = (int)(1000/dt)
 print(i120)
 plot_evolution(tempos, Y1, Y2, Y3)
-plot_perfil(X, T1[nsteps-1])
-plot_perfil3(X, T1[i1-1], T1[i120-1], T1[nsteps-1])
+plot_perfil_single(X, T1[nsteps-1])
+plot_perfil_tri(X, T1[i1-1], T1[i120-1], T1[nsteps-1])
