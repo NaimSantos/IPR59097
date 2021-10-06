@@ -21,6 +21,11 @@ eta = 3.0 + ((2*h*dx)/kappa)
 mu = (g*dt)/(rho*cp)
 
 print("r implicito: ", r1)
+
+T1 = np.zeros((nsteps, N))           # para armazenar os resultados em todos os tempos
+X = np.linspace(0.0, L, N)           # posições, para plotar
+tempos = np.linspace(ti, tf, nsteps) # tempos, para plotar
+
 def plot_perfil_single(x, y):
     plt.plot(x, y, 'r', linestyle='dashed', linewidth=2)
     plt.xlabel("Comprimento (m)", fontsize = 11)
@@ -52,9 +57,8 @@ def plot_evolution(x, y1, y2, y3):
     plt.savefig('Graf_Evolucao_Temporal.png')
     plt.show()
 
-T1 = np.zeros((nsteps, N))           # para armazenar os resultados em todos os tempos
-X = np.linspace(0.0, L, N)           # posições, para plotar
-tempos = np.linspace(ti, tf, nsteps) # tempos, para plotar
+
+
 def implictsolver(A, B, T):
     T[0] = B.reshape(1, N)
     t = 1
@@ -92,21 +96,23 @@ def solveimplicitly(r, T):
         i = i+1
     implictsolver(A, B, T)
 
+# O método é chamado aqui, B será alterado:
 solveimplicitly(r1, T1)
 
-
+# Apenas para encontrar os indices de x=0.25L, 0.5L e 0.75L
 index = np.linspace(0, N, 5)
 index_x1 = (int) (index[1] - 1)
 index_x2 = (int)(index[2] - 1)
 index_x3 = (int)(index[3] - 1)
-
 Y1=T1[:, index_x1]
 Y2=T1[:, index_x2]
 Y3=T1[:, index_x3]
 
+# Apenas para encontrar o indices dos tempos requeridos:
 i1 = (int)(1/dt)
 i120 = (int)(1000/dt)
-print(i120)
+
+# Plota os 3 gráficos de resultados:
 plot_evolution(tempos, Y1, Y2, Y3)
 plot_perfil_single(X, T1[nsteps-1])
 plot_perfil_tri(X, T1[i1-1], T1[i120-1], T1[nsteps-1])
