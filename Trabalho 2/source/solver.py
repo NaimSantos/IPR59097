@@ -1,9 +1,11 @@
+#        APÊNDICE A - SOLUÇÃO IMPLÍCITA
+
 import numpy as np
 import matplotlib.pyplot as plt
 
 # Variáveis do problema e do domínio:
 L = 0.03                 # comprimento total da placa
-N  = 24                  # número de nós da malha
+N  = 51                  # número de nós da malha
 ti = 0.0                 # tempo inicial da simulação
 tf = 12000.0             # tempo final da simulação
 dx = L/(N-1)             # comprimento do intervalo
@@ -20,8 +22,9 @@ r1 = (kappa*dt)/(rho*cp*dx*dx)
 eta = 3.0 + ((2*h*dx)/kappa)
 mu = (g*dt)/(rho*cp)
 
-print("r implicito: ", r1)
 
+print("dx r:", dx)
+print("Coeficiente r:", r1)
 T1 = np.zeros((nsteps, N))           # para armazenar os resultados em todos os tempos
 X = np.linspace(0.0, L, N)           # posições, para plotar
 tempos = np.linspace(ti, tf, nsteps) # tempos, para plotar
@@ -30,7 +33,7 @@ def plot_perfil_single(x, y):
     plt.plot(x, y, 'r', linestyle='dashed', linewidth=2)
     plt.xlabel("Comprimento (m)", fontsize = 11)
     plt.ylabel("Temperatura (° C)", fontsize = 11)
-    plt.legend(loc='upper center', fontsize=9)
+    #plt.legend(loc='upper center', fontsize=9)
     plt.grid(True, 'major', 'both')
     plt.savefig('Grafico_Perfil.png')
     plt.show()
@@ -56,8 +59,6 @@ def plot_evolution(x, y1, y2, y3):
     plt.grid(True, 'major', 'both')
     plt.savefig('Graf_Evolucao_Temporal.png')
     plt.show()
-
-
 
 def implictsolver(A, B, T):
     T[0] = B.reshape(1, N)
@@ -101,7 +102,7 @@ solveimplicitly(r1, T1)
 
 # Apenas para encontrar os indices de x=0.25L, 0.5L e 0.75L
 index = np.linspace(0, N, 5)
-index_x1 = (int) (index[1] - 1)
+index_x1 = (int)(index[1] - 1)
 index_x2 = (int)(index[2] - 1)
 index_x3 = (int)(index[3] - 1)
 Y1=T1[:, index_x1]
