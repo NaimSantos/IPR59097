@@ -18,7 +18,7 @@ T0 = 20.0
 TL = 20.0
 r = (kappa*dt)/(rho*cp*dx*dx) 
 gamma = 3.0 + ((2*h*dx)/kappa)
-mu = (g*dt)/(rho*cp)
+mu = (dt)/(rho*cp)
 
 A = np.zeros((N,N))                  # Matriz de coeficientes
 B = np.full((N, 1), T0)              # Termos independente
@@ -65,7 +65,7 @@ def solve_implicitly(nsteps):
         B[0][0] = 0.0
         k = 1
         while k < (N-1) :
-            B[k][0] = B[k][0] + mu
+            B[k][0] = B[k][0] + mu*g
             k = k + 1
         B[N-1][0] = (2*h*dx*T0)/kappa
         # Atualiza B com as novas temperaturas:

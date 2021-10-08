@@ -2,6 +2,7 @@
 
 import numpy as np
 import matplotlib.pyplot as plt
+import math
 
 # Variáveis do problema e do domínio:
 L = 0.03                 # comprimento total da placa
@@ -20,15 +21,19 @@ T0 = 20.0
 TL = 20.0
 r1 = (kappa*dt)/(rho*cp*dx*dx) 
 eta = 3.0 + ((2*h*dx)/kappa)
-mu = (g*dt)/(rho*cp)
+mu = (dt)/(rho*cp)
 
-
-print("dx r:", dx)
-print("Coeficiente r:", r1)
+print("Refinamento da malha espacial: ", dx)
+print("Criterio de estabiliade: ", r1)
+print("Passo de tempo: ", dt)
+print("Numero de passos de tempo: ", nsteps)
 T1 = np.zeros((nsteps, N))           # para armazenar os resultados em todos os tempos
 X = np.linspace(0.0, L, N)           # posições, para plotar
 tempos = np.linspace(ti, tf, nsteps) # tempos, para plotar
 
+def function_g(x):
+    return math.exp(x)
+    
 def plot_perfil_single(x, y):
     plt.plot(x, y, 'r', linestyle='dashed', linewidth=2)
     plt.xlabel("Posição (m)", fontsize = 11)
@@ -69,7 +74,8 @@ def implictsolver(A, B, T):
         B[N-1][0] = (2*h*dx*T0)/kappa
         i = 1
         while i < N-1 :
-            B[i][0] = B[i][0] + mu
+            B[i][0] = B[i][0] + mu*g
+            #B[i][0] = B[i][0] + mu*function_g(i*dx)*100000
             i = i + 1
         # Atualiza B com as novas temperaturas:
         B = np.linalg.solve(A, B)
