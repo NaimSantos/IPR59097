@@ -31,7 +31,7 @@ tempos = np.linspace(ti, tf, nsteps) # tempos, para plotar
 
 def plot_perfil_single(x, y):
     plt.plot(x, y, 'r', linestyle='dashed', linewidth=2)
-    plt.xlabel("Comprimento (m)", fontsize = 11)
+    plt.xlabel("Posição (m)", fontsize = 11)
     plt.ylabel("Temperatura (° C)", fontsize = 11)
     #plt.legend(loc='upper center', fontsize=9)
     plt.grid(True, 'major', 'both')
@@ -42,7 +42,7 @@ def plot_perfil_tri(x, y1, y2, y3):
     plt.plot(x, y1, 'c', label= 't = 1 s',  linewidth=2,)
     plt.plot(x, y2, 'b', label= 't = 1000 s', linewidth=2, )
     plt.plot(x, y3, 'r', label= 't = 120000 s', linewidth=2,)
-    plt.xlabel("Comprimento (m)", fontsize = 11)
+    plt.xlabel("Posição (m)", fontsize = 11)
     plt.ylabel("Temperatura (° C)", fontsize = 11)
     plt.legend(loc='best', fontsize=8)
     plt.grid(True, 'major', 'both')
@@ -115,5 +115,5 @@ i120 = (int)(1000/dt)
 
 # Plota os 3 gráficos de resultados:
 plot_evolution(tempos, Y1, Y2, Y3)
-plot_perfil_single(X, T1[nsteps-1])
 plot_perfil_tri(X, T1[i1-1], T1[i120-1], T1[nsteps-1])
+plot_perfil_single(X, T1[nsteps-1])
