@@ -44,10 +44,12 @@ def plot_perfil_single(x, y):
 
 def solve_explicitly(T, nsteps):
     for i in range (1, nsteps):
-        print("Time Step =", i)
+        # contorno esquerdo:
         T[i, 0] = T[i-1, 0] + 2*r*(T[i-1, 1] - T[i-1, 0]) + gamma*g
+        # nós internos:
         for j in range (1, N-1):
             T[i, j] = T[i-1, j] + r*(T[i-1, j-1] - 2*T[i-1, j] + T[i-1, j+1]) + gamma*g
+        # contorno direito:
         T[i, N-1] = T[i-1, N-1] + r*(2*T[i-1, N-2] - (2+mu)*T[i-1, N-1] + mu*T0) + gamma*g
 
 

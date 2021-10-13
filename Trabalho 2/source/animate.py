@@ -3,12 +3,12 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
-
+import math
 # Variáveis do problema e do domínio:
 L = 0.03                 # comprimento total da placa
 N  = 13                  # número de nós da malha
 ti = 0.0                 # tempo inicial da simulação
-tf = 12000.0             # tempo final da simulação
+tf = 1200.0             # tempo final da simulação
 dx = L/(N-1)             # comprimento do intervalo
 dt = 0.5                 # passo de tempo
 nsteps = int((tf-ti)/dt) # número de passos de tempo
@@ -21,7 +21,7 @@ T0 = 20.0
 TL = 20.0
 r1 = (kappa*dt)/(rho*cp*dx*dx) 
 eta = 3.0 + ((2*h*dx)/kappa)
-mu = (g*dt)/(rho*cp)
+mu = (dt)/(rho*cp)
 
 print("Refinamento da malha espacial: ", dx)
 print("Criterio de estabiliade: ", r1)
@@ -31,6 +31,12 @@ T1 = np.zeros((nsteps, N))           # para armazenar os resultados em todos os 
 X = np.linspace(0.0, L, N)           # posições, para plotar
 tempos = np.linspace(ti, tf, nsteps) # tempos, para plotar
 
+
+def function_g(x):
+    if (x <= L):
+        return x
+    else:
+        return L - x
 def plot_perfil_single(x, y):
     plt.plot(x, y, 'r', linestyle='dashed', linewidth=2)
     plt.xlabel("Comprimento (m)", fontsize = 11)
@@ -71,7 +77,7 @@ def implictsolver(A, B, T):
         B[N-1][0] = (2*h*dx*T0)/kappa
         i = 1
         while i < N-1 :
-            B[i][0] = B[i][0] + mu
+            B[i][0] = B[i][0] + mu*function_g(i*dx)*100000*100
             i = i + 1
         # Atualiza B com as novas temperaturas:
         B = np.linalg.solve(A, B)
