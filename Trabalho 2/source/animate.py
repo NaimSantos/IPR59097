@@ -33,7 +33,7 @@ tempos = np.linspace(ti, tf, nsteps) # tempos, para plotar
 
 
 def function_g(x):
-    if (x <= L):
+    if (x <= L/2):
         return x
     else:
         return L - x

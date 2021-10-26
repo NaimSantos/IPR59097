@@ -32,7 +32,10 @@ X = np.linspace(0.0, L, N)           # posições, para plotar
 tempos = np.linspace(ti, tf, nsteps) # tempos, para plotar
 
 def function_g(x):
-    return math.exp(x)
+    if (x <= L):
+        return x
+    else:
+        return L - x
     
 def plot_perfil_single(x, y):
     plt.plot(x, y, 'r', linestyle='dashed', linewidth=2)
@@ -69,13 +72,15 @@ def implictsolver(A, B, T):
     T[0] = B.reshape(1, N)
     t = 1
     while t < nsteps:
+        if (t%1000 == 0):
+            print("time step: ", t)
         # Correção de B:
         B[0][0] = 0.0
         B[N-1][0] = (2*h*dx*T0)/kappa
         i = 1
         while i < N-1 :
-            B[i][0] = B[i][0] + mu*g
-            #B[i][0] = B[i][0] + mu*function_g(i*dx)*100000
+            #B[i][0] = B[i][0] + mu*g
+            B[i][0] = B[i][0] + mu*function_g(i*dx)*1000000
             i = i + 1
         # Atualiza B com as novas temperaturas:
         B = np.linalg.solve(A, B)
@@ -116,10 +121,12 @@ Y2=T1[:, index_x2]
 Y3=T1[:, index_x3]
 
 # Apenas para encontrar o indices dos tempos requeridos:
-i1 = (int)(1/dt)
-i120 = (int)(1000/dt)
+i1 = (int)(600/dt)
+i120 = (int)(1200/dt)
 
 # Plota os 3 gráficos de resultados:
-plot_evolution(tempos, Y1, Y2, Y3)
-plot_perfil_tri(X, T1[i1-1], T1[i120-1], T1[nsteps-1])
+#plot_evolution(tempos, Y1, Y2, Y3)
+#plot_perfil_tri(X, T1[i1-1], T1[i120-1], T1[nsteps-1])
+plot_perfil_single(X, T1[i1])
+plot_perfil_single(X, T1[i120])
 plot_perfil_single(X, T1[nsteps-1])
