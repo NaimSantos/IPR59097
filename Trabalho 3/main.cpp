@@ -11,25 +11,24 @@
 // Protótipos de funções:
 void solver_finite_difference(std::vector<std::vector<double>>& T, const double r, const double gamma);
 void save_data_final(std::fstream& u_file, const std::vector<std::vector<double>>& T);
-void fix_bounds(std::vector<std::vector<double>>& T, bool fixed_temp = false);
+void fix_bounds(std::vector<std::vector<double>>& T, bool dirichlet = false);
 void print_messages();
+void try_static_assertions();
 
 // Variáveis do domínio e da simulaçaão:
 constexpr double kappa {15.1};                          // coeficiente de difusividade térmica
 constexpr double rho {8050};                            // massa específica
 constexpr double cp {480};                              // calor específico
 constexpr double g {100000};                            // geração interna
-
 constexpr double L {0.05};                              // tamanho em x
 constexpr double H {0.05};                              // tamanho em y
 constexpr int Nx {101};                                 // número de nós em x
 constexpr int Ny {101};                                 // número de nós em y
 constexpr auto dx = L/(Nx-1);                           // comprimento da célula
 constexpr auto dy = L/(Ny-1);                           // altura da célula
-
-constexpr double T_init {20.0};                         // temperatura do meio no interior e da placa
-constexpr double T_void {100.0};                        // temperatura preescrita dos contornos
-
+constexpr double T_init {20.0};                         // temperatura inicial da placa
+constexpr double T_fixed {100.0};                       // temperatura prescrita no contorno
+constexpr double T_inf {20.0};                          // temperatura do fluido no interior
 constexpr double ti {0.0};                              // tempo inicial da simulação
 constexpr double tf {500.0};                            // tempo final da simulação
 constexpr auto alfa = kappa/(rho*cp);
@@ -40,11 +39,12 @@ constexpr auto gamma = g*dt/(rho*cp);
 constexpr auto r = kappa*dt/(rho*cp*dx*dx);
 
 int main(int argc, char* argv[]){
+
+	try_static_assertions();
 	print_messages();
-	
+
 	// Malha:
 	std::vector<std::vector<double>> T(Ny, std::vector<double>(Nx, T_init));
-
 	// Arquivo de saida:
 	std::fstream save_1 {"2D_Heat.txt", std::ios::out|std::ios::trunc};
 
@@ -57,29 +57,15 @@ int main(int argc, char* argv[]){
 	}
 	save_data_final(save_1, T);
 
-	std::cout << "\nExecution reached the end";
+	std::cout << "\n------- Execution reached the end.------- ";
 }
 
-void print_messages(){
-	std::cout << "2D NON-STEADY HEAT EQUATION SOLVER" << std::endl;
-	dt < stab ? std::cout << "STABILITY CRITERIA FULLFILED\n" << std::endl : std::cout << "STABILITY CRITERIA VIOLATED\n" << std::endl;
-	std::cout << "Maximum time step allowed: " << stab << std::endl;
-	std::cout << "Time step used: " << dt << std::endl; 
-	std::cout << "dx = " << dx << std::endl;
-	std::cout << "Coeficient r = " << r << std::endl;
-	std::cout << "Total time steps to be evaluated: " << nsteps << std::endl;
-}
 
 void solver_finite_difference(std::vector<std::vector<double>>& T, const double r, const double gamma){
 
-	if ((T.size() != Nx) || (T[0].size() != Ny)){
-		std::cout << "Domain mismatch detected! " << std::endl;
-		return;
-	}
-
 	auto p = static_cast<int>(Nx*0.3);        // começo da área vazada: 30 % da extensão
 	auto p_w = static_cast<int>(Nx*0.7);      // final da área vazada: 70 % da extensão
-	
+
 	// Apenas para printar uma unica vez os dados:
 	static int ammount{0};
 	if (ammount == 0){
@@ -119,7 +105,47 @@ void solver_finite_difference(std::vector<std::vector<double>>& T, const double 
 
 }
 
+void fix_bounds(std::vector<std::vector<double>>& T, bool dirichlet){
+
+	// Arestas superior e direita:
+	for (int i = 0; i < Nx; i++){
+		// Superior:
+		T[0][i] = T_fixed;
+		// Direita:
+		T[i][Nx-1] = T_fixed;
+	}
+
+	// Temperatura prescrita nos contornos esquerdo e inferior (Dirichlet)
+	if (dirichlet){
+		for (int i = 0; i < Nx; i++){
+			// Aresta esquerda:
+			T[i][0] = T_fixed;
+			// Aresta inferior:
+			T[Nx-1][i] = T_fixed;
+		}
+	}
+	// Fluxo nulo nos contornos esquerdo e inferior (Neumann)
+	else{
+		for (int i = 0; i < Nx; i++){
+			// Aresta esquerda
+			T[i][0] = T[i][1];
+			// Aresta inferior:
+			T[Nx-1][i] = T[Nx-2][i];
+		}
+	}
+
+	// Garante a temperatura do fluido no interior  (entre [0.3 ~ 0.7]L x [0.3 ~ 0.7]L):
+	auto p = static_cast<int>(Nx*0.3);
+	auto p_w = static_cast<int>(Nx*0.7);
+	for (int i = p; i < p_w; i++){
+		for (int j = p; j < p_w; j++){
+			T[i][j] = T_inf;
+		}
+	}
+}
+
 void save_data_final(std::fstream& u_file, const std::vector<std::vector<double>>& T){
+
 	std::cout << "Saving data to file..." << std::endl;
 	const auto N = T[0].size();
 	const auto M = T.size();
@@ -131,46 +157,20 @@ void save_data_final(std::fstream& u_file, const std::vector<std::vector<double>
 	}
 }
 
-void fix_bounds(std::vector<std::vector<double>>& T, bool fixed_temp){
+void print_messages(){
 
-	if ((T.size() != Nx) || (T[0].size() != Ny)){
-		std::cout << "Domain mismatch detected! " << std::endl;
-		return;
-	}
+	std::cout << "------- 2D NON-STEADY HEAT EQUATION SOLVER -------" << std::endl;
+	dt < stab ? std::cout << "\nSTABILITY CRITERIA FULLFILED!" << std::endl : std::cout << "\nSTABILITY CRITERIA VIOLATED!" << std::endl;
+	std::cout << "Maximum time step allowed: " << stab << std::endl;
+	std::cout << "Time step used: " << dt << std::endl; 
+	std::cout << "\ndx = " << dx << std::endl;
+	std::cout << "Coeficient r = " << r << std::endl;
+	std::cout << "Total time steps to be evaluated: " << nsteps << std::endl;
+}
 
-	// Arestas superior e direita:
-	for (int i = 0; i < Nx; i++){
-		// Superior:
-		T[0][i] = T_void;
-		// Direita:
-		T[i][Nx-1] = T_void;
-	}
+void try_static_assertions(){
 
-	// Se a temperatura é preescrita nas arestas esquerda e inferior
-	if (fixed_temp){
-		for (int i = 0; i < Nx; i++){
-			// Aresta esquerda:
-			T[i][0] = T_void;
-			// Aresta inferior:
-			T[Nx-1][i] = T_void;
-		}
-	}
-	// Se o fluxo é nulo nas arestas esquerda e inferior
-	else{
-		for (int i = 0; i < Nx; i++){
-			// Aresta esquerda
-			T[i][0] = T[i][1];
-			// Aresta inferior:
-			T[Nx-1][i] = T[Nx-2][i];
-		}
-	}
-
-	// Garante a temperatura do fluido no interior  (entre [0.4 ~ 0.6]L x [0.4 ~ 0.6]L):
-	auto p = static_cast<int>(Nx*0.3);
-	auto p_w = static_cast<int>(Nx*0.7);
-	for (int i = p; i < p_w; i++){
-		for (int j = p; j < p_w; j++){
-			T[i][j] = T_init;
-		}
-	}
+	static_assert(Nx != 0 && Ny != 0, "Numero de nos nao pode ser nulo");
+	static_assert(Nx == Ny, "Numero de nos precisa em x e y ser igual");
+	static_assert(Nx > 10 || Ny > 10, "Numero de nos precisa ser maior que 10");
 }
