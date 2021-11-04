@@ -6,37 +6,37 @@
 #include <algorithm> //std::fill
 #include <fstream>   //std::fstream
 
-#include "utilities.h"
-
 // Protótipos de funções:
-void solver_finite_difference(std::vector<std::vector<double>>& T, const double r, const double gamma);
+void solver_finite_difference(std::vector<std::vector<double>>& T, const double r, const double lambda);
 void save_data_final(std::fstream& u_file, const std::vector<std::vector<double>>& T);
 void fix_bounds(std::vector<std::vector<double>>& T, bool dirichlet = false);
 void print_messages();
 void try_static_assertions();
 
 // Variáveis do domínio e da simulaçaão:
-constexpr double kappa {15.1};                          // coeficiente de difusividade térmica
-constexpr double rho {8050};                            // massa específica
-constexpr double cp {480};                              // calor específico
+constexpr double kappa {0.6};                           // coeficiente de difusividade térmica
+constexpr double rho {600};                             // massa específica
+constexpr double cp {1200};                             // calor específico
+constexpr double h {15.0};                              // coeficiente de troca termica por convecao
 constexpr double g {100000};                            // geração interna
-constexpr double L {0.05};                              // tamanho em x
-constexpr double H {0.05};                              // tamanho em y
+constexpr double Lx {0.05};                             // tamanho em x
+constexpr double Ly {0.05};                             // tamanho em y
 constexpr int Nx {101};                                 // número de nós em x
 constexpr int Ny {101};                                 // número de nós em y
-constexpr auto dx = L/(Nx-1);                           // comprimento da célula
-constexpr auto dy = L/(Ny-1);                           // altura da célula
+constexpr auto dx = Lx/(Nx-1);
+constexpr auto dy = Ly/(Ny-1);
 constexpr double T_init {20.0};                         // temperatura inicial da placa
 constexpr double T_fixed {100.0};                       // temperatura prescrita no contorno
 constexpr double T_inf {20.0};                          // temperatura do fluido no interior
 constexpr double ti {0.0};                              // tempo inicial da simulação
-constexpr double tf {500.0};                            // tempo final da simulação
+constexpr double tf {240};                          // tempo final da simulação
 constexpr auto alfa = kappa/(rho*cp);
-constexpr auto stab = (dx*dx) / (2*alfa);               // máximo passo de tempo para estabilidade
+constexpr auto stab = (dx*dx)/(2*alfa);                 // máximo passo de tempo para estabilidade
 constexpr auto dt = 0.95*stab;                          // passo de tempo (95 % do passo máximo)
 constexpr int nsteps = 1 + static_cast<int>((tf-ti)/dt);// número de passos de tempo
-constexpr auto gamma = g*dt/(rho*cp);
+constexpr auto lambda = g*dt/(rho*cp);
 constexpr auto r = kappa*dt/(rho*cp*dx*dx);
+constexpr auto gamma = (2*h*dx)/kappa;
 
 int main(int argc, char* argv[]){
 
@@ -51,7 +51,7 @@ int main(int argc, char* argv[]){
 	// Inicio da iteração temporal:
 	for (int step = 0; step < nsteps; step++){
 		fix_bounds(T, false);
-		solver_finite_difference(T, r, gamma);
+		solver_finite_difference(T, r, lambda);
 		if (step%1000 == 0)
 			std::cout << "Current time step: " << step << std::endl;
 	}
@@ -61,7 +61,7 @@ int main(int argc, char* argv[]){
 }
 
 
-void solver_finite_difference(std::vector<std::vector<double>>& T, const double r, const double gamma){
+void solver_finite_difference(std::vector<std::vector<double>>& T, const double r, const double lambda){
 
 	auto p = static_cast<int>(Nx*0.3);        // começo da área vazada: 30 % da extensão
 	auto p_w = static_cast<int>(Nx*0.7);      // final da área vazada: 70 % da extensão
@@ -98,7 +98,7 @@ void solver_finite_difference(std::vector<std::vector<double>>& T, const double 
 			}
 			// Temperatura nos demais nós
 			else{
-				T[i][j] = T[i][j] + r*(T[i+1][j] + T[i-1][j] + T[i][j+1] + T[i][j-1] - 4*T[i][j]) + gamma;
+				T[i][j] = T[i][j] + r*(T[i+1][j] + T[i-1][j] + T[i][j+1] + T[i][j-1] - 4*T[i][j]) + lambda;
 			}
 		}
 	}
