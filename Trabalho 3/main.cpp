@@ -12,6 +12,7 @@
 void solver_finite_difference(std::vector<std::vector<double>>& T, const double r, const double gamma);
 void save_data_final(std::fstream& u_file, const std::vector<std::vector<double>>& A);
 void fix_bounds(std::vector<std::vector<double>>& A, bool fixed_temp = false);
+void print_messages();
 
 // Variáveis do domínio e da simulaçaão:
 constexpr double kappa {15.1};                          // coeficiente de difusividade térmica
@@ -33,19 +34,13 @@ constexpr double ti {0.0};                              // tempo inicial da simu
 constexpr double tf {500.0};                            // tempo final da simulação
 constexpr auto alfa = kappa/(rho*cp);
 constexpr auto stab = (dx*dx) / (2*alfa);               // máximo passo de tempo para estabilidade
-constexpr auto dt = 0.95*stab;                           // passo de tempo (90 % do passo máximo)
+constexpr auto dt = 0.95*stab;                          // passo de tempo (95 % do passo máximo)
 constexpr int nsteps = 1 + static_cast<int>((tf-ti)/dt);// número de passos de tempo
 constexpr auto gamma = g*dt/(rho*cp);
 constexpr auto r = kappa*dt/(rho*cp*dx*dx);
 
 int main(int argc, char* argv[]){
-	std::cout << "2D NON-STEADY HEAT EQUATION SOLVER" << std::endl;
-	dt < stab ? std::cout << "STABILITY CRITERIA FULLFILED\n" << std::endl : std::cout << "STABILITY CRITERIA VIOLATED\n" << std::endl;
-	std::cout << "Maximum time step allowed: " << stab << std::endl;
-	std::cout << "Time step used: " << dt << std::endl; 
-	std::cout << "dx = " << dx << std::endl;
-	std::cout << "Coeficient r = " << r << std::endl;
-	std::cout << "Total time steps to be evaluated: " << nsteps << std::endl;
+	print_messages();
 	
 	// Malha:
 	std::vector<std::vector<double>> T(Ny, std::vector<double>(Nx, T_init));
@@ -63,6 +58,16 @@ int main(int argc, char* argv[]){
 	save_data_final(save_1, T);
 
 	std::cout << "\nExecution reached the end";
+}
+
+void print_messages(){
+	std::cout << "2D NON-STEADY HEAT EQUATION SOLVER" << std::endl;
+	dt < stab ? std::cout << "STABILITY CRITERIA FULLFILED\n" << std::endl : std::cout << "STABILITY CRITERIA VIOLATED\n" << std::endl;
+	std::cout << "Maximum time step allowed: " << stab << std::endl;
+	std::cout << "Time step used: " << dt << std::endl; 
+	std::cout << "dx = " << dx << std::endl;
+	std::cout << "Coeficient r = " << r << std::endl;
+	std::cout << "Total time steps to be evaluated: " << nsteps << std::endl;
 }
 
 void solver_finite_difference(std::vector<std::vector<double>>& T, const double r, const double gamma){
