@@ -10,8 +10,8 @@
 
 // Protótipos de funções:
 void solver_finite_difference(std::vector<std::vector<double>>& T, const double r, const double gamma);
-void save_data_final(std::fstream& u_file, const std::vector<std::vector<double>>& A);
-void fix_bounds(std::vector<std::vector<double>>& A, bool fixed_temp = false);
+void save_data_final(std::fstream& u_file, const std::vector<std::vector<double>>& T);
+void fix_bounds(std::vector<std::vector<double>>& T, bool fixed_temp = false);
 void print_messages();
 
 // Variáveis do domínio e da simulaçaão:
@@ -71,31 +71,33 @@ void print_messages(){
 }
 
 void solver_finite_difference(std::vector<std::vector<double>>& T, const double r, const double gamma){
-	//Calcula os valores dos nós:
-	const auto N = T[0].size();
-	const auto M = T.size();
 
-	auto p = static_cast<int>(M*0.3);        // começo da área vazada: 40 % da extensão
-	auto p_w = static_cast<int>(M*0.7);      // final da área vazada: 60 % da extensão
+	if ((T.size() != Nx) || (T[0].size() != Ny)){
+		std::cout << "Domain mismatch detected! " << std::endl;
+		return;
+	}
+
+	auto p = static_cast<int>(Nx*0.3);        // começo da área vazada: 30 % da extensão
+	auto p_w = static_cast<int>(Nx*0.7);      // final da área vazada: 70 % da extensão
 	
 	// Apenas para printar uma unica vez os dados:
 	static int ammount{0};
 	if (ammount == 0){
-		std::cout << "\nNumero de nos em x: " << N << std::endl;
-		std::cout << "Numero de nos em y: " << M << std::endl;
+		std::cout << "\nNumero de nos em x: " << Nx << std::endl;
+		std::cout << "Numero de nos em y: " << Ny << std::endl;
 		std::cout << "Inicio da area vazada: " << p << std::endl;
 		std::cout << "Final da area vazada: " << p_w << std::endl;
 	}
 	ammount++;
 
-	// Iteração nos nós do domínio
-	for (int i = 1; i < N-1; i++){
-		for (int j = 1; j < M-1; j++){
-
-			// Temperatura na região interna
+	// Iteração nos nós do domínio, exceto contornos externos
+	for (int i = 1; i < Nx-1; i++){
+		for (int j = 1; j < Ny-1; j++){
+			// Temperatura na região vazada
 			if ((i>p && i<p_w) && (j>p && j<p_w)){
 				continue;
 			}
+			// Temperatura nas regiões do contorno interno (área vazada)
 			else if (i==p+1 && (j>p && j<p_w)){
 				T[i][j] = (1/(3 + gamma))*(gamma*T_init + 4*T[i-1][j] - T[i-2][j] );
 			}
@@ -108,6 +110,7 @@ void solver_finite_difference(std::vector<std::vector<double>>& T, const double 
 			else if(j==p_w-1 && (i>=p && i<=p_w)){
 				T[i][j] = (1/(gamma - 3))*(gamma*T_init - 4*T[i][j+1] + T[i][j+2]) ;
 			}
+			// Temperatura nos demais nós
 			else{
 				T[i][j] = T[i][j] + r*(T[i+1][j] + T[i-1][j] + T[i][j+1] + T[i][j-1] - 4*T[i][j]) + gamma;
 			}
@@ -116,21 +119,21 @@ void solver_finite_difference(std::vector<std::vector<double>>& T, const double 
 
 }
 
-void save_data_final(std::fstream& u_file, const std::vector<std::vector<double>>& A){
+void save_data_final(std::fstream& u_file, const std::vector<std::vector<double>>& T){
 	std::cout << "Saving data to file..." << std::endl;
-	const auto N = A[0].size();
-	const auto M = A.size();
+	const auto N = T[0].size();
+	const auto M = T.size();
 	for (int i = N-1; i >= 0; i--){
 		for (int j = 0; j < M; j++){
-			u_file << std::setw(8) << A[i][j] << " ";
+			u_file << std::setw(8) << T[i][j] << " ";
 		}
 		u_file << "\n";
 	}
 }
 
-void fix_bounds(std::vector<std::vector<double>>& A, bool fixed_temp){
+void fix_bounds(std::vector<std::vector<double>>& T, bool fixed_temp){
 
-	if ((A.size() != Nx) || (A[0].size() != Ny)){
+	if ((T.size() != Nx) || (T[0].size() != Ny)){
 		std::cout << "Domain mismatch detected! " << std::endl;
 		return;
 	}
@@ -138,27 +141,27 @@ void fix_bounds(std::vector<std::vector<double>>& A, bool fixed_temp){
 	// Arestas superior e direita:
 	for (int i = 0; i < Nx; i++){
 		// Superior:
-		A[0][i] = T_void;
+		T[0][i] = T_void;
 		// Direita:
-		A[i][Nx-1] = T_void;
+		T[i][Nx-1] = T_void;
 	}
 
 	// Se a temperatura é preescrita nas arestas esquerda e inferior
 	if (fixed_temp){
 		for (int i = 0; i < Nx; i++){
 			// Aresta esquerda:
-			A[i][0] = T_void;
+			T[i][0] = T_void;
 			// Aresta inferior:
-			A[Nx-1][i] = T_void;
+			T[Nx-1][i] = T_void;
 		}
 	}
 	// Se o fluxo é nulo nas arestas esquerda e inferior
 	else{
 		for (int i = 0; i < Nx; i++){
 			// Aresta esquerda
-			A[i][0] = A[i][1];
+			T[i][0] = T[i][1];
 			// Aresta inferior:
-			A[Nx-1][i] = A[Nx-2][i];
+			T[Nx-1][i] = T[Nx-2][i];
 		}
 	}
 
@@ -167,7 +170,7 @@ void fix_bounds(std::vector<std::vector<double>>& A, bool fixed_temp){
 	auto p_w = static_cast<int>(Nx*0.7);
 	for (int i = p; i < p_w; i++){
 		for (int j = p; j < p_w; j++){
-			A[i][j] = T_init;
+			T[i][j] = T_init;
 		}
 	}
 }
