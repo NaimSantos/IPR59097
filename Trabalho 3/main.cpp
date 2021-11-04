@@ -31,18 +31,16 @@ constexpr double T_void {100.0};                        // temperatura preescrit
 
 constexpr double ti {0.0};                              // tempo inicial da simulação
 constexpr double tf {500.0};                            // tempo final da simulação
-constexpr int nsteps {4096*6};                          // número de passos de tempo
-constexpr auto dt = (tf-ti)/nsteps;                     // tamanho do passo de tempo
-constexpr auto gamma = g*dt/(rho*cp);
 constexpr auto alfa = kappa/(rho*cp);
+constexpr auto stab = (dx*dx) / (2*alfa);               // máximo passo de tempo para estabilidade
+constexpr auto dt = 0.95*stab;                           // passo de tempo (90 % do passo máximo)
+constexpr int nsteps = 1 + static_cast<int>((tf-ti)/dt);// número de passos de tempo
+constexpr auto gamma = g*dt/(rho*cp);
 constexpr auto r = kappa*dt/(rho*cp*dx*dx);
 
 int main(int argc, char* argv[]){
 	std::cout << "2D NON-STEADY HEAT EQUATION SOLVER" << std::endl;
-
-	// Variáveis auxiliares do problema:
-	constexpr auto stab = (dx*dx) / (2*alfa);
-	dt < stab ? std::cout << "STABILITY CRITERIA FULLFILED" << std::endl : std::cout << "STABILITY CRITERIA VIOLATED\n" << std::endl;
+	dt < stab ? std::cout << "STABILITY CRITERIA FULLFILED\n" << std::endl : std::cout << "STABILITY CRITERIA VIOLATED\n" << std::endl;
 	std::cout << "Maximum time step allowed: " << stab << std::endl;
 	std::cout << "Time step used: " << dt << std::endl; 
 	std::cout << "dx = " << dx << std::endl;
