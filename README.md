@@ -22,4 +22,9 @@
 ## Trabalho 3
 
 ### Solução de um problema de transferência de calor bidimensional transiente
-* Transferência de calor em uma place bidimensionlal com uma área vazada no interior 
+* Transferência de calor em uma placa bidimensionlal com uma área vazada no interior 
+* Problema com geração interna de energia
+* Fluxo nulo na aresta inferior e na aresta esquerda
+* Temperatura prescrita na aresta superior e na aresta direita
+* Troca de calor por convecção na área vazada
+* Implementação em C++
