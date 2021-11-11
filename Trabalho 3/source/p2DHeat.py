@@ -4,7 +4,7 @@ import math
 
 # Variáveis do problema e do domínio:
 L = 0.1                  # comprimento total da placa ( Lx = Ly)
-N = 25                   # número de nós da malha (considerando N = M)
+N = 101                   # número de nós da malha (considerando N = M)
 tf = 120                # tempo final da simulação
 dx = L/(N-1)             # comprimento do intervalo (dx = dy)
 dt = 0.2                 # passo de tempo
@@ -19,7 +19,7 @@ T_f = 20.0               # temperatura do fluido na área vazada
 T1 = 100.0               # temperatura nas arestas superior e direita
 alpha = kappa/(rho*cp)
 r = (kappa*dt)/(rho*cp*dx*dx)
-lambda = (alpha*g*dt)/kappa
+lamnd = (alpha*g*dt)/kappa
 gamma = 2*h*dx/kappa
 
 
@@ -48,14 +48,14 @@ def set_outer_boundaries(Temp):
     # Aresta esquerda:
     for i in range(0, N-1):
         j = 0
-        Temp[i, j] = T1
-        #Temp[i, j] = (1/3)*(4*Temp[i, j+1] - Temp[i, j+2])
+        #Temp[i, j] = T1
+        Temp[i, j] = (1/3)*(4*Temp[i, j+1] - Temp[i, j+2])
 
     # Aresta inferior:
     for j in range(1, N-1):
         i = 0
-        Temp[i, j] = T1
-        #Temp[i, j] = (1/3)*(4*Temp[i+1, j] - Temp[i+2, j])
+        #Temp[i, j] = T1
+        Temp[i, j] = (1/3)*(4*Temp[i+1, j] - Temp[i+2, j])
 
     # Aresta superior:
     for i in range (0, N):
@@ -106,7 +106,7 @@ def solve_explicitly(Temp):
 
                 # Temperatura nos demais nós
                 else:
-                    Temp[i, j] = Temp[i, j] + r*(Temp[i+1, j] + Temp[i-1, j] + Temp[i, j+1] + Temp[i, j-1] - 4*Temp[i, j]) + lambda
+                    Temp[i, j] = Temp[i, j] + r*(Temp[i+1, j] + Temp[i-1, j] + Temp[i, j+1] + Temp[i, j-1] - 4*Temp[i, j]) + lamnd
 
         # Próximo passo de tempo
         t_current = t_current + dt
