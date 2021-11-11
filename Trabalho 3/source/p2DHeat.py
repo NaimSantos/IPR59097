@@ -44,6 +44,16 @@ def show_parameters():
     print("Número de passos de tempo: ", nsteps)
 
 def set_outer_boundaries(Temp):
+    # Aresta esquerda:
+    for i in range(0, N-1):
+        j = 0
+        Temp[i, j] = (1/3)*(4*Temp[i, j+1] - Temp[i, j+2])
+    
+    # Aresta inferior:
+    for j in range(1, N-1):
+        i = 0
+        Temp[i, j] = (1/3)*(4*Temp[i+1, j] - Temp[i+2, j])
+
     # Aresta superior:
     for i in range (0, N):
         j = N-1
@@ -54,15 +64,6 @@ def set_outer_boundaries(Temp):
         i = N-1
         Temp[i, j] = T1
         
-    # Aresta esquerda:
-    for i in range(1, N-2):
-        j = 0
-        Temp[i, j] = (1/3)*(4*Temp[i+1, j] - Temp[i+2, j])
-    
-    # Aresta inferior:
-    for j in range(1, N-3):
-        i = 0
-        Temp[i, j] = (1/3)*(4*Temp[i, j+1] - Temp[i, j+2])
 
 
 
@@ -75,12 +76,12 @@ def solve_explicitly(Temp):
         # impomos as condições nos contornos externos:
         set_outer_boundaries(Temp)
 
-        # Iteração em x (de 1 a N-2):
-        for i in range (0, N-1):
+        # Iteração em x, de 1 a N-2:
+        for i in range (1, N-1):
 
             # Iteração em y (de 1 a N-2):
-            for j in range (0, N-1):
-               Temp[i, j] -= 0.0
+            for j in range (1, N-1):
+               Temp[i, j] = 0.0
         # Próximo passo de tempo
         t_current = t_current + dt
 
