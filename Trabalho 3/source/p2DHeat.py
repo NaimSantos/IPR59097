@@ -44,6 +44,26 @@ def show_parameters():
     print('Passo de tempo: %.1f (s)' %dt)
     print("Número de passos de tempo: ", nsteps)
 
+def plot_v2(Temp):
+    # generate 2 2d grids for the x & y bounds
+    y, x = np.meshgrid(np.linspace(0.0, L, N), np.linspace(0.0, L, N))
+
+    z = Temp
+    # x and y are bounds, so z should be the value *inside* those bounds.
+    # Therefore, remove the last value from the z array.
+    z_min, z_max = -np.abs(z).max(), np.abs(z).max()
+
+    fig, ax = plt.subplots()
+
+    c = ax.pcolormesh(x, y, z, cmap='RdBu', vmin=z_min, vmax=z_max)
+    ax.set_title('pcolormesh')
+    # set the limits of the plot to the limits of the data
+    ax.axis([x.min(), x.max(), y.min(), y.max()])
+    fig.colorbar(c, ax=ax)
+    plt.savefig('Heat_Map_v2.png')
+    plt.show()
+
+
 def set_outer_boundaries(Temp):
     # Aresta esquerda:
     for i in range(0, N-1):
@@ -67,8 +87,6 @@ def set_outer_boundaries(Temp):
         i = N-1
         Temp[i, j] = T1
  
-
-
 
 def solve_explicitly(Temp):
     p = int(0.3*N)
@@ -113,11 +131,11 @@ def solve_explicitly(Temp):
 
 
 
-
 # Chamada das rotinas para resolver o problema:
 solve_explicitly(Temp)
 #Temp = np.transpose(Temp)
-heatmap2d(Temp)
+#heatmap2d(np.transpose(Temp))
+plot_v2(Temp)
 
 
 
