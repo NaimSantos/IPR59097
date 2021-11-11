@@ -4,8 +4,8 @@ import math
 
 # Variáveis do problema e do domínio:
 L = 0.1                  # comprimento total da placa ( Lx = Ly)
-N = 131                   # número de nós da malha (considerando N = M)
-tf = 120                # tempo final da simulação
+N = 101                  # número de nós da malha (considerando N = M)
+tf = 120                 # tempo final da simulação
 dx = L/(N-1)             # comprimento do intervalo (dx = dy)
 dt = 0.2                 # passo de tempo
 nsteps = int(tf/dt)      # número de passos de tempo
@@ -24,7 +24,7 @@ gamma = 2*h*dx/kappa
 
 
 # Malha e outros arrays:
-tim = np.linspace(0.0, tf, nsteps)   # Tempos
+tim = np.linspace(0.0, tf, nsteps)      # Tempos
 Temp = np.full((N, N), T_ini)           # Malha NxN de temperaturas, inicializadas em T_ini.
 test_array = np.arange(100*100).reshape(100,100)
 
@@ -50,6 +50,8 @@ def plot_v2(Temp):
 
     z = Temp
     # x and y are bounds, so z should be the value *inside* those bounds.
+    z = z[:-1, :-1]
+    
     z_min = np.abs(z).min()
     z_max = np.abs(z).max()
 
