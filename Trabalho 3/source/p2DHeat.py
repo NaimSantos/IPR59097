@@ -14,9 +14,9 @@ rho = 600
 cp = 1200
 h = 15.0
 g = 100000
-T0 = 20.0              # temperatura inicial da placa
-T_f = 20.0              # temperatura do fluido na área vazada
-T1 = 100.0             # temperatura nas arestas superior e direita
+T0 = 20.0                # temperatura inicial da placa
+T_f = 20.0               # temperatura do fluido na área vazada
+T1 = 100.0               # temperatura nas arestas superior e direita
 alph = kappa/(rho*cp)
 r = (kappa*dt)/(rho*cp*(dx**2))
 gamma = alph*dt/kappa
@@ -28,7 +28,7 @@ Temp = np.full((N, N), T0)           # Malha NxN de temperaturas, inicializadas 
 test_array = np.arange(100*100).reshape(100,100)
 
 
-# Definições de funções utilizadas
+# Definições de funções utilizadas:
 def heatmap2d(arr: np.ndarray):
     plt.imshow(arr, cmap='YlOrRd')
     plt.colorbar()
@@ -46,19 +46,23 @@ def show_parameters():
 def set_outer_boundaries(Temp):
     # Aresta superior:
     for i in range (0, N):
-        Temp[i, N-1] = T1
+        j = N-1
+        Temp[i, j] = T1
 
     # Aresta direita:
     for j in range(0, N):
-        Temp[N-1, j] = T1
+        i = N-1
+        Temp[i, j] = T1
         
     # Aresta esquerda:
-    for i in range(0, N-1):
-        Temp[i, 0] = (4/3)*(T[i, j] - T[i, j])
+    for i in range(1, N-2):
+        j = 0
+        Temp[i, j] = (1/3)*(4*Temp[i+1, j] - Temp[i+2, j])
     
     # Aresta inferior:
-    for j in range(1, N-1):
-        Temp[i, 0] = (4/3)*(T[i, j] - T[i, j])
+    for j in range(1, N-3):
+        i = 0
+        Temp[i, j] = (1/3)*(4*Temp[i, j+1] - Temp[i, j+2])
 
 
 
