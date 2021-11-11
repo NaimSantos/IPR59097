@@ -55,8 +55,8 @@ def plot_v2(Temp):
 
     fig, ax = plt.subplots()
 
-    c = ax.pcolormesh(x, y, z, cmap='RdBu', vmin=z_min, vmax=z_max)
-    ax.set_title('pcolormesh')
+    c = ax.pcolormesh(x, y, z, cmap='YlOrRd', vmin=20, vmax=z_max)
+    ax.set_title('Distribuição de Temperatura')
     # set the limits of the plot to the limits of the data
     ax.axis([x.min(), x.max(), y.min(), y.max()])
     fig.colorbar(c, ax=ax)
