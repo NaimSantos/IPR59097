@@ -4,7 +4,7 @@ import math
 
 # Variáveis do problema e do domínio:
 L = 0.1                  # comprimento total da placa ( Lx = Ly)
-N = 101                   # número de nós da malha (considerando N = M)
+N = 131                   # número de nós da malha (considerando N = M)
 tf = 120                # tempo final da simulação
 dx = L/(N-1)             # comprimento do intervalo (dx = dy)
 dt = 0.2                 # passo de tempo
@@ -50,12 +50,12 @@ def plot_v2(Temp):
 
     z = Temp
     # x and y are bounds, so z should be the value *inside* those bounds.
-    # Therefore, remove the last value from the z array.
-    z_min, z_max = -np.abs(z).max(), np.abs(z).max()
+    z_min = np.abs(z).min()
+    z_max = np.abs(z).max()
 
     fig, ax = plt.subplots()
 
-    c = ax.pcolormesh(x, y, z, cmap='YlOrRd', vmin=20, vmax=z_max)
+    c = ax.pcolormesh(x, y, z, cmap='YlOrRd', vmin=z_min, vmax=z_max)
     ax.set_title('Distribuição de Temperatura')
     # set the limits of the plot to the limits of the data
     ax.axis([x.min(), x.max(), y.min(), y.max()])
