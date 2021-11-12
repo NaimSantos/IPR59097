@@ -3,10 +3,10 @@ import matplotlib.pyplot as plt
 import math
 
 # Variáveis do problema e do domínio:
-L = 0.1                  # comprimento total da placa ( Lx = Ly)
-N = 101                  # número de nós da malha (considerando N = M)
+L = 0.1                  # comprimento total da placa (considerando Lx = Ly)
+N = 51                   # número de nós da malha (considerando N = M)
 tf = 120                 # tempo final da simulação
-dx = L/(N-1)             # comprimento do intervalo (dx = dy)
+dx = L/(N-1)             # comprimento do intervalo (considerando dx = dy)
 dt = 0.2                 # passo de tempo
 nsteps = int(tf/dt)      # número de passos de tempo
 kappa = 0.6
@@ -22,11 +22,14 @@ r = (kappa*dt)/(rho*cp*dx*dx)
 lamnd = (alpha*g*dt)/kappa
 gamma = 2*h*dx/kappa
 
+# Coeficientes da função g
+a_value = 1.0
+b_value = 1.0
+
 
 # Malha e outros arrays:
 tim = np.linspace(0.0, tf, nsteps)      # Tempos
 Temp = np.full((N, N), T_ini)           # Malha NxN de temperaturas, inicializadas em T_ini.
-test_array = np.arange(100*100).reshape(100,100)
 
 
 # Definições de funções utilizadas:
@@ -131,6 +134,63 @@ def solve_explicitly(Temp):
         # Próximo passo de tempo
         t_current = t_current + dt
 
+def evaluate_g(T_ij):
+    return a_value * math.exp(b_value * T_ij)
+
+def evaluate_k_i(i1, i2, j):
+    return (k[i1, j] + k[i2, j])/2.0
+
+def evaluate_k_i(i, j1, j2):
+    return (k[i, j1] + k[i, j2])/2.0
+
+def evaluate_cp(T_ij):
+    return 2.0 # Finalizar
+
+def solve_explicitly_and_variable(Temp):
+    p = int(0.3*N)
+    p_w = int(0.7*N)
+
+    # Iteração no tempo:
+    t_current = 0.0
+    while (t_current < tf):
+
+        # impomos as condições nos contornos externos:
+        set_outer_boundaries(Temp)
+
+        # Iteração em x, de 1 a N-2:
+        for i in range (1, N-1):
+
+            # Iteração em y (de 1 a N-2):
+            for j in range (1, N-1):
+
+                # Temperatura na região vazada
+                if ((i>p and i<p_w) and (j>p and j<p_w)):
+                    Temp[i,j] = T_f
+
+                # Temperatura nas regiões do contorno interno (área vazada)
+                elif (i==p+1 and (j>p and j<p_w)):
+                    Temp[i,j] = (1/(3 + gamma))*(gamma*T_ini + 4*Temp[i-1,j] - Temp[i-2,j] )
+
+                elif (i==p_w-1 and (j>p and j<p_w)):
+                    Temp[i,j] = (1/(gamma - 3))*(gamma*T_ini - 4*Temp[i+1,j] + Temp[i+2,j] )
+
+                elif (j==p+1 and (i>=p and i<=p_w)):
+                    Temp[i,j] = (1/(3 + gamma))*(gamma * T_ini + 4*Temp[i,j-1] - Temp[i,j-2] )
+
+                elif(j==p_w-1 and (i>=p and i<=p_w)):
+                    Temp[i,j] = (1/(gamma - 3))*(gamma*T_ini - 4*Temp[i,j+1] + Temp[i,j+2])
+
+                # Temperatura nos demais nós
+                else:
+                    k_i12_prev = evaluate_k_i(i-1, i, j)
+                    k_i12_next = evaluate_k_i(i+1, i, j)
+                    k_j12_prev = evaluate_k_j(i, j-1, j)
+                    k_j12_next = evaluate_k_j(i, j+1, j)
+                    Temp[i,j] = Temp[i,j] + (dt/ (dx*dx*evaluate_cp(T[i,j])))*(k_i12_prev*Temp[i-1,j] + k_i12_next*Temp[i+1,j] + k_j12_prev*Temp[i,j-1] + k_j12_next*Temp[i,j+1] - (k_i12_prev + k_i12_next + k_j12_prev + k_j12_next)*Temp[i,j]) + lamnd
+                    
+
+        # Próximo passo de tempo
+        t_current = t_current + dt
 
 
 # Chamada das rotinas para resolver o problema:
