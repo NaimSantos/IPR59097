@@ -4,7 +4,7 @@ import math
 
 # Variáveis do problema e do domínio:
 L = 0.1                  # comprimento total da placa (considerando Lx = Ly)
-N = 51                   # número de nós da malha (considerando N = M)
+N = 25                   # número de nós da malha (considerando N = M)
 tf = 120                 # tempo final da simulação
 dx = L/(N-1)             # comprimento do intervalo (considerando dx = dy)
 dt = 0.2                 # passo de tempo
@@ -30,6 +30,11 @@ b_value = 1.0
 # Malha e outros arrays:
 tim = np.linspace(0.0, tf, nsteps)      # Tempos
 Temp = np.full((N, N), T_ini)           # Malha NxN de temperaturas, inicializadas em T_ini.
+k = np.full((N, N), kappa)              # matriz .
+
+# Matriz de coeficientes:
+
+A = np.zeros((N, N))
 
 
 # Definições de funções utilizadas:
@@ -70,17 +75,25 @@ def plot_v2(Temp):
 
 
 def set_outer_boundaries(Temp):
+
+    for i in range(0, N):
+        for j in range(0, N):
+            if ((i==0 or i==N-1) or (j==0 or j==N-1)):
+                Temp[i, j] = T1
+
+
+def set_outer_boundaries_original(Temp):
     # Aresta esquerda:
     for i in range(0, N-1):
         j = 0
-        #Temp[i, j] = T1
-        Temp[i, j] = (1/3)*(4*Temp[i, j+1] - Temp[i, j+2])
+        Temp[i, j] = T1
+        #Temp[i, j] = (1/3)*(4*Temp[i, j+1] - Temp[i, j+2])
 
     # Aresta inferior:
     for j in range(1, N-1):
         i = 0
-        #Temp[i, j] = T1
-        Temp[i, j] = (1/3)*(4*Temp[i+1, j] - Temp[i+2, j])
+        Temp[i, j] = T1
+        #Temp[i, j] = (1/3)*(4*Temp[i+1, j] - Temp[i+2, j])
 
     # Aresta superior:
     for i in range (0, N):
@@ -91,7 +104,7 @@ def set_outer_boundaries(Temp):
     for j in range(0, N):
         i = N-1
         Temp[i, j] = T1
- 
+
 
 def solve_explicitly(Temp):
     p = int(0.3*N)
@@ -134,17 +147,21 @@ def solve_explicitly(Temp):
         # Próximo passo de tempo
         t_current = t_current + dt
 
+def function_k(T_val):
+    return kappa
+    # implementar aqui a função kappa, dependente da temperatura
+
 def evaluate_g(T_ij):
     return a_value * math.exp(b_value * T_ij)
 
-def evaluate_k_i(i1, i2, j):
-    return (k[i1, j] + k[i2, j])/2.0
-
-def evaluate_k_i(i, j1, j2):
-    return (k[i, j1] + k[i, j2])/2.0
+def evaluate_k(T1, T2):
+    a = function_k(T1)
+    b = function_k(T2)
+    return (a+b)/2.0
 
 def evaluate_cp(T_ij):
-    return 2.0 # Finalizar
+    return cp
+    #return 2.0 # Finalizar
 
 def solve_explicitly_and_variable(Temp):
     p = int(0.3*N)
@@ -169,32 +186,36 @@ def solve_explicitly_and_variable(Temp):
 
                 # Temperatura nas regiões do contorno interno (área vazada)
                 elif (i==p+1 and (j>p and j<p_w)):
-                    Temp[i,j] = (1/(3 + gamma))*(gamma*T_ini + 4*Temp[i-1,j] - Temp[i-2,j] )
+                    Temp[i,j] = T_f # (1/(3 + gamma))*(gamma*T_ini + 4*Temp[i-1,j] - Temp[i-2,j] )
+                    #Temp[i,j] = (1/(3 + gamma))*(gamma*T_ini + 4*Temp[i-1,j] - Temp[i-2,j] )
 
                 elif (i==p_w-1 and (j>p and j<p_w)):
-                    Temp[i,j] = (1/(gamma - 3))*(gamma*T_ini - 4*Temp[i+1,j] + Temp[i+2,j] )
+                    Temp[i,j] = T_f #(1/(gamma - 3))*(gamma*T_ini - 4*Temp[i+1,j] + Temp[i+2,j] )
+                    #Temp[i,j] = (1/(gamma - 3))*(gamma*T_ini - 4*Temp[i+1,j] + Temp[i+2,j] )
 
                 elif (j==p+1 and (i>=p and i<=p_w)):
-                    Temp[i,j] = (1/(3 + gamma))*(gamma * T_ini + 4*Temp[i,j-1] - Temp[i,j-2] )
+                    Temp[i,j] = T_f #(1/(3 + gamma))*(gamma * T_ini + 4*Temp[i,j-1] - Temp[i,j-2] )
+                    #Temp[i,j] = (1/(3 + gamma))*(gamma * T_ini + 4*Temp[i,j-1] - Temp[i,j-2] )
 
                 elif(j==p_w-1 and (i>=p and i<=p_w)):
-                    Temp[i,j] = (1/(gamma - 3))*(gamma*T_ini - 4*Temp[i,j+1] + Temp[i,j+2])
+                    Temp[i,j] = T_f #(1/(gamma - 3))*(gamma*T_ini - 4*Temp[i,j+1] + Temp[i,j+2])
+                    #Temp[i,j] = (1/(gamma - 3))*(gamma*T_ini - 4*Temp[i,j+1] + Temp[i,j+2])
 
                 # Temperatura nos demais nós
                 else:
-                    k_i12_prev = evaluate_k_i(i-1, i, j)
-                    k_i12_next = evaluate_k_i(i+1, i, j)
-                    k_j12_prev = evaluate_k_j(i, j-1, j)
-                    k_j12_next = evaluate_k_j(i, j+1, j)
-                    Temp[i,j] = Temp[i,j] + (dt/ (dx*dx*evaluate_cp(T[i,j])))*(k_i12_prev*Temp[i-1,j] + k_i12_next*Temp[i+1,j] + k_j12_prev*Temp[i,j-1] + k_j12_next*Temp[i,j+1] - (k_i12_prev + k_i12_next + k_j12_prev + k_j12_next)*Temp[i,j]) + lamnd
-                    
+                    ki_a = evaluate_k(Temp[i, j], Temp[i-1, j])
+                    ki_b = evaluate_k(Temp[i, j], Temp[i+1, j])
+                    kj_a = evaluate_k(Temp[i, j], Temp[i, j-1])
+                    kj_b = evaluate_k(Temp[i, j], Temp[i, j+1])
+  
+                    Temp[i,j] = Temp[i,j] + (dt/(dx*dx*cp))*(ki_a*Temp[i-1,j] + ki_b*Temp[i+1,j] + kj_a*Temp[i,j-1] + kj_b*Temp[i,j+1] - (ki_a + ki_b + kj_a + kj_b)*Temp[i,j]) + g*dt
 
         # Próximo passo de tempo
         t_current = t_current + dt
 
 
 # Chamada das rotinas para resolver o problema:
-solve_explicitly(Temp)
+solve_explicitly_and_variable(Temp)
 #Temp = np.transpose(Temp)
 #heatmap2d(np.transpose(Temp))
 plot_v2(Temp)
