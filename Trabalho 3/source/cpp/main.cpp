@@ -23,8 +23,8 @@ constexpr double h {15.0};                              // coeficiente de troca 
 constexpr double g {100000};                            // geração interna
 constexpr double Lx {0.05};                             // tamanho em x
 constexpr double Ly {0.05};                             // tamanho em y
-constexpr int Nx {9};                                 // número de nós em x
-constexpr int Ny {9};                                 // número de nós em y
+constexpr int Nx {21};                                 // número de nós em x
+constexpr int Ny {21};                                 // número de nós em y
 constexpr auto dx = Lx/(Nx-1);
 constexpr auto dy = Ly/(Ny-1);
 constexpr double T_init {20.0};                         // temperatura inicial da placa
@@ -56,7 +56,8 @@ int main(int argc, char* argv[]){
 	// Inicio da iteração temporal:
 	for (int step = 0; step < 1; step++){
 		fix_bounds(T);
-		solver_variable_property(T);
+		solver_finite_difference(T);
+		//solver_variable_property(T);
 		if (step%1000 == 0)
 			std::cout << "Current progress: " << 100*step/nsteps << " %"<< std::endl;
 	}
