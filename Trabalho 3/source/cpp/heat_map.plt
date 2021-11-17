@@ -12,8 +12,7 @@ set ytics border in scale 0,0 mirror autojustify
 # unset cbtics # remove a escala numerica de cd
 #set rtics axis in scale 0,0 nomirror norotate  autojustify
 set title "Perfil de Temperatura na placa" 
-set cblabel "Temperatura" 
 # set palette rgbformulae -34, -35, -36
-set palette defined (20 'white', 21 "yellow", 40 "orange", 60 "tan1", 90 "red", 120 "dark-red" )
+set palette defined (19 'white', 20.1 'yellow', 30 "yellow", 40 "orange", 60 "tan1", 90 "red", 120 "dark-red" )
 #set palette defined (100 "yellow", 101.5 "orange", 103 "tan1", 105 "red" )
 splot '2D_Heat.txt' matrix with image
