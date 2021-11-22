@@ -4,7 +4,7 @@ import math
 
 
 L = 2.0                  # dimensao do domínio (Lx = Ly = L)
-N  = 21                  # número de nós da malha
+N  = 41                  # número de nós da malha
 ti = 0.0                 # tempo inicial da simulação
 tf = 1.0                 # tempo final da simulação
 dx = L/(N-1)             # comprimento do intervalo
@@ -17,7 +17,8 @@ kappa = 0.001
 vx = 1.0
 vy = 0.0
 a = (dt*Dxx)/(dx*dx)
-b = (vx*dt)/(2.0*dx)
+b = (dt*Dyy)/(dx*dx)
+c = (vx*dt)/(2.0*dx)
 d = kappa*dt
 
 j025 = int(0.25*N)     # indice da posição onde a concentração é fixa
@@ -53,7 +54,11 @@ def plot_2DGrid(Matrix):
     fig.colorbar(c, ax=ax)
     plt.savefig('Concentracao.png')
     plt.show()
-    
+
+Coef_1 = 0.0
+Coef_2 = 0.0
+Coef_3 = 0.0
+Coef_4 = 0.0     
 
 def solve_explicitly(C):
     # Variáveis auxiliares (periodicidade)
@@ -68,11 +73,11 @@ def solve_explicitly(C):
             for j in range (0, N):
                 # Periodicidade em x:
                 if (i==0):
-                   i_prev = 0
+                   i_prev = N-1
                 else:
                     i_prev = i-1
                 if (i==N-1):
-                    i_next = N-1
+                    i_next = 0
                 else:
                     i_next = i+1
                 # periodicidade em y
@@ -88,7 +93,11 @@ def solve_explicitly(C):
                 if (i==0 and (j==j025 or j==j075)):
                     C[i,j] = 1.0
                 else:
-                    C[i, j] = a*(C[i_prev, j] + C[i_next, j] + C[i, j_prev] + C[i, j_next]) + d*C[i,j] -4*a*C[i,j] + C[i,j] - b*(C[i_prev, j] - C[i_next, j])
+                    Coef_1 = a*(C[i_prev, j] - 2*C[i, j] + C[i_next, j])
+                    Coef_2 = b*(C[i, j_prev] - 2*C[i, j] + C[i, j_next])
+                    Coef_3 = -c*(C[i_prev, j] - C[i_next, j])
+                    Coef_4 = d*C[i, j] + C[i, j]
+                    C[i, j] = Coef_1 + Coef_2 + Coef_3 + Coef_4
         step = step + 1
 
 
