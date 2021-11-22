@@ -73,11 +73,11 @@ def solve_explicitly(C):
             for j in range (0, N):
                 # Periodicidade em x:
                 if (i==0):
-                   i_prev = N-1
+                   i_prev = 0 # periodicidade real: i_prev = N-1
                 else:
                     i_prev = i-1
                 if (i==N-1):
-                    i_next = 0
+                    i_next = N-1 # periodicidade real: i_next = 0
                 else:
                     i_next = i+1
                 # periodicidade em y
