@@ -20,7 +20,6 @@ a = (dt*Dxx)/(dx*dx)
 b = (dt*Dyy)/(dx*dx)
 c = (vx*dt)/(2.0*dx)
 d = kappa*dt
-
 j025 = int(0.25*N)     # indice da posição onde a concentração é fixa
 j075 = int(0.75*N)     # indice da posição onde a concentração é fixa
 
@@ -33,7 +32,8 @@ def show_parameters():
     print("Tempo total de simulação: ", tf)
     print("Passo de tempo: ", dt)
     print("Número de passos de tempo: ", nsteps)
-    
+
+
 def plot_2DGrid(Matrix):
     # generate 2 2d grids for the x & y bounds
     y, x = np.meshgrid(np.linspace(0.0, L, N), np.linspace(0.0, L, N))
@@ -55,23 +55,26 @@ def plot_2DGrid(Matrix):
     plt.savefig('Concentracao.png')
     plt.show()
 
-Coef_1 = 0.0
-Coef_2 = 0.0
-Coef_3 = 0.0
-Coef_4 = 0.0     
 
 def solve_explicitly(C):
-    # Variáveis auxiliares (periodicidade)
+    # Variáveis auxiliares:
+    Coef_1 = 0.0
+    Coef_2 = 0.0
+    Coef_3 = 0.0
+    Coef_4 = 0.0
+
     # Evolução temporal:
     step = 0
     while (step < nsteps):
-        if (step%100 == 0):
-            print("Passo de tempo atual: ", step)        
-        for i in range (0, N):
 
-            # Loop em j:
+        if (step%100 == 0):
+            print("Passo de tempo atual: ", step)
+
+        # Iteração na malha
+        for i in range (0, N):
             for j in range (0, N):
-                # Periodicidade em x:
+
+                # Implementação da periodicidade
                 if (i==0):
                    i_prev = 0 # periodicidade real: i_prev = N-1
                 else:
@@ -90,8 +93,10 @@ def solve_explicitly(C):
                 else:
                     j_next = j+1
 
+                # Neste ponto, a concentração é dada:
                 if (i==0 and (j==j025 or j==j075)):
                     C[i,j] = 1.0
+                # Caso contrário, atualize a concentração
                 else:
                     Coef_1 = a*(C[i_prev, j] - 2*C[i, j] + C[i_next, j])
                     Coef_2 = b*(C[i, j_prev] - 2*C[i, j] + C[i, j_next])
