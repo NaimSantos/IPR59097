@@ -6,9 +6,9 @@ import math
 L = 2.0                  # dimensao do domínio (Lx = Ly = L)
 N  = 21                  # número de nós da malha
 ti = 0.0                 # tempo inicial da simulação
-tf = 2.0                 # tempo final da simulação
+tf = 1.0                 # tempo final da simulação
 dx = L/(N-1)             # comprimento do intervalo
-dt = 0.00005             # passo de tempo
+dt = 0.0005              # passo de tempo
 nsteps = int((tf-ti)/dt) # número de passos de tempo
 C_ini = 0.0              # concentração inicial
 Dxx = 0.2
@@ -47,7 +47,7 @@ def plot_2DGrid(Matrix):
     fig, ax = plt.subplots()
 
     c = ax.pcolormesh(x, y, z, cmap='bwr', vmin=z_min, vmax=z_max)
-    ax.set_title('Concentração no domínio')
+    ax.set_title('Concentração')
     # set the limits of the plot to the limits of the data
     ax.axis([x.min(), x.max(), y.min(), y.max()])
     fig.colorbar(c, ax=ax)
@@ -63,17 +63,18 @@ def solve_explicitly(C):
         if (step%100 == 0):
             print("Passo de tempo atual: ", step)        
         for i in range (0, N):
-            # Periodicidade em x:
-            if (i==0):
-               i_prev = 0
-            else:
-                i_prev = i-1
-            if (i==N-1):
-                i_next = N-1
-            else:
-                i_next = i+1
+
             # Loop em j:
             for j in range (0, N):
+                # Periodicidade em x:
+                if (i==0):
+                   i_prev = 0
+                else:
+                    i_prev = i-1
+                if (i==N-1):
+                    i_next = N-1
+                else:
+                    i_next = i+1
                 # periodicidade em y
                 if (j==0):
                     j_prev = N-1
