@@ -4,7 +4,7 @@ import math
 
 
 L = 2.0                  # dimensao do domínio (Lx = Ly = L)
-N  = 41                  # número de nós da malha
+N  = 101                  # número de nós da malha
 ti = 0.0                 # tempo inicial da simulação
 tf = 1.0                 # tempo final da simulação
 dx = L/(N-1)             # comprimento do intervalo
@@ -47,7 +47,7 @@ def plot_2DGrid(Matrix):
 
     fig, ax = plt.subplots()
 
-    c = ax.pcolormesh(x, y, z, cmap='bwr', vmin=z_min, vmax=z_max)
+    c = ax.pcolormesh(x, y, z, cmap='jet', vmin=z_min, vmax=z_max)
     ax.set_title('Concentração')
     # set the limits of the plot to the limits of the data
     ax.axis([x.min(), x.max(), y.min(), y.max()])
@@ -100,8 +100,8 @@ def solve_explicitly(C):
                 else:
                     Coef_1 = a*(C[i_prev, j] - 2*C[i, j] + C[i_next, j])
                     Coef_2 = b*(C[i, j_prev] - 2*C[i, j] + C[i, j_next])
-                    Coef_3 = -c*(C[i_prev, j] - C[i_next, j])
-                    Coef_4 = d*C[i, j] + C[i, j]
+                    Coef_3 = -c*(C[i_next, j] - C[i_prev, j])
+                    Coef_4 = -d*C[i, j] + C[i, j]
                     C[i, j] = Coef_1 + Coef_2 + Coef_3 + Coef_4
         step = step + 1
 
