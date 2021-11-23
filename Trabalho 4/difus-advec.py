@@ -8,7 +8,7 @@ N  = 31                  # número de nós da malha
 ti = 0.0                 # tempo inicial da simulação
 tf = 1.0                 # tempo final da simulação
 dx = L/(N-1)             # comprimento do intervalo
-dt = 0.001              # passo de tempo
+dt = 0.001               # passo de tempo
 nsteps = int((tf-ti)/dt) # número de passos de tempo
 C_ini = 0.0              # concentração inicial
 Dxx = 0.2
@@ -158,9 +158,9 @@ def init():
 def animate(i):
     step = i*dt
     if (i%10 == 0):
-        print('Progresso atual: %.1f / 100.0' % (100*i/nsteps))
+        print('Progresso atual: %.1f %%' % (100*i/nsteps))
     update_mesh()
-    time_text.set_text('t = %.1f s' % step)
+    time_text.set_text('t = %.1f d' % step)
     c = ax.pcolormesh(x, y, C[:-1, :-1], cmap='jet', vmin=z_min, vmax=z_max)
     return c, time_text
 
