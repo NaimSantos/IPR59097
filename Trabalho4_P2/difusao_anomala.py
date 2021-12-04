@@ -43,7 +43,7 @@ def plot_compare(x, y1, y2):
     title = "Solução em t = {:.2f} s".format(tf)
     plt.title(title)
     plt.plot(x, y1, 'b', label='Analítico', linewidth=2)
-    plt.plot(x, y2, 'r', label='Numérico', linewidth=2)
+    plt.plot(x, y2, 'r', label='Numérico', linestyle='dashed', linewidth=2)
     plt.title(title)
     plt.xlabel("Posição (m)", fontsize = 11)
     plt.ylabel("Concentração", fontsize = 11)
@@ -88,6 +88,8 @@ def solve_explicitly():
     for n in range(0, nsteps):
         # Corrigimos B:
         B[0] = 0.0
+        B[1] = 0.0
+        B[N-2] = 0.0
         B[N-1] = 0.0
         # Obtemos o novo B como a solução do sistema linear:
         B = np.linalg.solve(A, B)
