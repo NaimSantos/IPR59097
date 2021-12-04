@@ -62,16 +62,12 @@ def solucao_analitica(x, t):
 def solve_explicitly():
     global A
     global B
-    
-    # Preenchemos B:
-    for i in range (1, N-1):
-        B[i] = initial_condition(i*dx)
-    
+
     # Preenchemos A:
     # Primeira linha:
     A[0, 0] = 1.0
     # Segunda linha:
-    A[1, 0] = 2.0;  A[1, 1] = -5.0;  A[1, 2] = 4.0; A[1, 3] = -1.0;
+    A[1, 0] = 2.0; A[1, 1] = -5.0; A[1, 2] = 4.0; A[1, 3] = -1.0;
     # Da terceira (indice 2) até a antepenúltima (indice N-3) linha:
     for i in range(2, N-2):
         A[i, i-2] = a1
@@ -80,9 +76,13 @@ def solve_explicitly():
         A[i, i+1] = a2
         A[i, i+2] = a1
     # Penúltima linha:
-    A[N-2, N-4] = -1.0;  A[N-2, N-3] = 4.0;  A[N-2, N-2] = -5.0; A[N-2, N-1] = 2.0;
+    A[N-2, N-4] = -1.0;  A[N-2, N-3] = 4.0; A[N-2, N-2] = -5.0; A[N-2, N-1] = 2.0;
     # Ultima linha:
     A[N-1, N-1] = 1.0
+
+    # Preenchemos B:
+    for i in range (1, N-1):
+        B[i] = initial_condition(i*dx)
 
     # Iteração no tempo:
     for n in range(0, nsteps):
@@ -99,9 +99,6 @@ for i in range (0, N):
 
 
 # Solução numérica:
-
 solve_explicitly()
 plot_compare(X, Exat, B)
 
-#np.set_printoptions(precision=4)
-#np.set_printoptions(suppress=True)
