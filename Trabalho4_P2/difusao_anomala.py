@@ -6,28 +6,28 @@ import math
 
 # Variáveis do problema e do domínio:
 L = 1.0                  # comprimento total do domínio
-N  = 51                  # número de nós da malha
+N  = 21                  # número de nós da malha
 ti = 0.0                 # tempo inicial da simulação
 tf = 10.0                # tempo final da simulação
 dx = L/(N-1)             # comprimento do intervalo
 dt = 0.001               # passo de tempo
 nsteps = int((tf-ti)/dt) # número de passos de tempo
+
+# parâmetros do artigo de Silva et al.:
 K2 = 0.001
 K4 = 0.00001
 beta = 0.2
-
-# beta = 0.5
-# K2 = 0.1
+# parâmetros do artigo do Sulivan: beta = 0.5; K2 = 0.1; K4 = 0.00001
 
 kappa1 = beta*K2*dt/(dx**2)
 kappa2 = - ((beta*(1-beta))*K4*dt)/(dx**2)
 a1 = -kappa2
 a2 = ((4*kappa2) - kappa1)
-a3 = (1-(2*kappa1) - (6*kappa2))
+a3 = (1+(2*kappa1) - (6*kappa2))
 
 # Malhas:
 X = np.linspace(0.0, L, N)    # posições, para plotar
-Exat = np.zeros(N)            # Solução analítica
+Analytic = np.zeros(N)        # Solução analítica
 A =  np.zeros((N, N))         # Matriz dos coeficientes
 B = np.zeros(N)               # Matriz dos termos independentes
 
@@ -54,7 +54,7 @@ def plot_compare(x, y1, y2):
 
 
 def initial_condition(x):
-    return math.sin(math.pi * x / L)
+    return math.sin(math.pi*x/L)
 
 def solucao_analitica(x, t):
     return math.exp(-beta*K2*(math.pi**2)*t)*math.exp(-beta*(1-beta)*K4*(math.pi**4)*t)*math.sin(math.pi*x/L)
@@ -68,7 +68,7 @@ def solve_explicitly():
     A[0, 0] = 1.0
     # Segunda linha:
     A[1, 0] = 2.0; A[1, 1] = -5.0; A[1, 2] = 4.0; A[1, 3] = -1.0;
-    # Da terceira (indice 2) até a antepenúltima (indice N-3) linha:
+    # Da terceira (índice 2) até a antepenúltima (índice N-3) linha:
     for i in range(2, N-2):
         A[i, i-2] = a1
         A[i, i-1] = a2
@@ -80,13 +80,14 @@ def solve_explicitly():
     # Ultima linha:
     A[N-1, N-1] = 1.0
 
-    # Preenchemos B:
-    for i in range (1, N-1):
+    # O vetor de termos independentes é, inicialmente, os P no instante 0, então preenchemos B com a condição inicial
+    # Preenchemos da terceira (índice 2) até a antepenúltima (índice N-3) célula:
+    for i in range (2, N-2):
         B[i] = initial_condition(i*dx)
 
     # Iteração no tempo:
     for n in range(0, nsteps):
-        # Corrigimos B:
+        # Corrigimos os Bs:
         B[0] = 0.0
         B[1] = 0.0
         B[N-2] = 0.0
@@ -97,10 +98,10 @@ def solve_explicitly():
 
 # Solução analítica:
 for i in range (0, N):
-    Exat[i] = solucao_analitica(i*dx, tf)
+    Analytic[i] = solucao_analitica(i*dx, tf)
 
 
 # Solução numérica:
 solve_explicitly()
-plot_compare(X, Exat, B)
+plot_compare(X, Analytic, B)
 
