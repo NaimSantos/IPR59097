@@ -6,7 +6,7 @@ import math
 
 # Variáveis do problema e do domínio:
 L = 1.0                  # comprimento total do domínio
-N  = 21                  # número de nós da malha
+N  = 101                  # número de nós da malha
 ti = 0.0                 # tempo inicial da simulação
 tf = 10.0                # tempo final da simulação
 dx = L/(N-1)             # comprimento do intervalo
@@ -52,11 +52,30 @@ def plot_compare(x, y1, y2):
     plt.savefig('Comparacao_Analitico_Numerico.png')
     plt.show()
 
+def plot_side_by_side(x, y1, y2):
+
+    plt.subplot(1, 2, 1)
+    plt.plot(x, y1, 'r')
+    plt.title('Condição Inicial')
+    plt.grid(True, 'major', 'both')
+    plt.xlabel('x (m)')
+    plt.ylabel('Concentração')
+
+    plt.subplot(1, 2, 2)
+    plt.plot(x, y2, 'b')
+    plt.grid(True, 'major', 'both')
+    plt.title('Solução analítica em t = 0')
+    plt.xlabel('x (m)')
+    #plt.ylabel('Concentração')
+  
+    plt.savefig('Comparados.png')
+    plt.show()
+
 
 def initial_condition(x):
     return math.sin(math.pi*x/L)
 
-def solucao_analitica(x, t):
+def analytical_solution(x, t):
     return math.exp(-beta*K2*(math.pi**2)*t)*math.exp(-beta*(1-beta)*K4*(math.pi**4)*t)*math.sin(math.pi*x/L)
 
 def solve_explicitly():
@@ -96,12 +115,24 @@ def solve_explicitly():
         B = np.linalg.solve(A, B)
 
 
-# Solução analítica:
+
+
+Y1 = np.zeros(N)        # Condição inicial
+Y2 = np.zeros(N)        # Solução analítica em t= 0
+
 for i in range (0, N):
-    Analytic[i] = solucao_analitica(i*dx, tf)
+    Y1[i] = initial_condition(i*dx)
+    Y2[i] = analytical_solution(i*dx, 0.0)
+
+plot_side_by_side(X, Y1, Y2)
 
 
-# Solução numérica:
+'''
+# Solução analítica no tempo requerido:
+for i in range (0, N):
+    Analytic[i] = analytical_solution(i*dx, tf)
+
+# Solução numérica no tempo requerido:
 solve_explicitly()
 plot_compare(X, Analytic, B)
-
+'''
